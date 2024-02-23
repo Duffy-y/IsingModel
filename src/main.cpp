@@ -42,12 +42,18 @@ int main(int argc, char *argv[]) {
     MC::Options options = MC::Options();
     options.J = 1;
     options.jumpSize = 1000;
-    options.T = 0.1;
+    options.T = 2.5;
     options.kB = 1;
-    options.epochThreshold = 1000000;
-    options.relativeVariation = 0.002; // Valeur raisonnable (~ 300 iterations Wolff pour un équilibre correct)
+    options.epochThreshold = 10000000;
+    options.relativeVariation = 0.0002; // Valeur raisonnable (~ 300 iterations Wolff pour un équilibre correct)
     options.mcIterator = MC::metropolisIteration;
     options.dataRecordDuration = 1;
+
+    MC::reachEquilibrium(lat, options);
+
+    auto dat = np::loadtxt(lat.spin, lat.sizeY, lat.sizeX);
+    plt::imshow(dat, cmap_seismic);
+    plt::show();
 
     // showAlgorithm(lat, options);
 
