@@ -36,4 +36,4 @@
 
 .vscode
 .idea
-./build/
+build/
