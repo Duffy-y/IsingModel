@@ -10,20 +10,15 @@ PYTHON := -I/usr/include/python3.12 -lpython3.12
 PYTHON_MAG := -I/usr/include/python3.10
 
 CPP := g++
-CPPFLAGS := -Wall -std=c++23 # $(AUTO_DEP)
-
-magcompile:
-	mkdir -p $(dir $@)
-	$(CPP) $(CPPFLAGS) $(PYTHON_MAG) $(SRCS) -lpython3.10 -lm -o $(BUILD_DIR)/$(TARGET)
-	$(BUILD_DIR)/$(TARGET)
+CPPFLAGS := -Wall -std=c++23
 
 $(BUILD_DIR)/$(TARGET): $(OBJS)
-	$(CPP) $(CPPFLAGS) $(OBJS) -o $@
+	$(CPP) $(CPPFLAGS) $(PYTHON) $(OBJS) -o $@
 	$(BUILD_DIR)/$(TARGET)
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
-	mkdir -p $(dir $@)
-	$(CPP) $(CPPFLAGS) -c $< -o $@
+	mkdir -p $(BUILD_DIR)
+	$(CPP) $(CPPFLAGS) $(PYTHON) -c $< -o $@
 
 clean:
 	rm -r $(BUILD_DIR)
@@ -32,4 +27,7 @@ clean:
 cleandata:
 	rm -f $(TXT)
 
-# -include $(DEPS)
+magcompile:
+	mkdir -p $(BUILD_DIR)
+	$(CPP) $(CPPFLAGS) $(PYTHON_MAG) $(SRCS) -lpython3.10 -lm -o $(BUILD_DIR)/$(TARGET)
+	$(BUILD_DIR)/$(TARGET)
