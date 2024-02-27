@@ -4,24 +4,42 @@
 #include <fstream>
 #include <sstream>
 
-namespace plt {
-
-void openPython(int realTime) {
+namespace py {
+void openPython() {
     Py_Initialize();
-    PyRun_SimpleString("import numpy as np");
-    PyRun_SimpleString("import matplotlib.pyplot as plt");
-
-    if (realTime)
-        PyRun_SimpleString("plt.ion()");
-
-    PyRun_SimpleString("fig = plt.figure()");
+    import("numpy", "np");
+    import("matplotlib.pyplot", "plt");
 
     return;
+}
+
+void import(std::string module, std::string alias) {
+    PyRun_SimpleString(("import " + module + " as " + alias).c_str());
+}
+
+void import(std::string module) {
+    PyRun_SimpleString(("import " + module).c_str());
 }
 
 void closePython() {
     Py_Finalize();
     return;
+}
+}
+
+namespace plt {
+
+std::string figure() {
+    std::string varName = randomString(10);
+    PyRun_SimpleString((varName + " = plt.figure()").c_str());
+}
+
+void ion() {
+    PyRun_SimpleString("plt.ion()");
+}
+
+void ioff() {
+    PyRun_SimpleString("plt.ioff()");
 }
 
 void plot(std::string x, std::string y, std::string label) {
@@ -62,15 +80,15 @@ void ylabel(std::string ylabel)
 }
 
 namespace np {
-std::string loadtxt(int **array, uint rows, uint columns)
+std::string array(int **data, uint rows, uint columns)
 {
     std::string varName = randomString(10);
-    loadtxt(varName, array, rows, columns);
+    array(varName, data, rows, columns);
     
     return varName;
 }
 
-void loadtxt(std::string varName, int **array, uint rows, uint columns)
+void array(std::string varName, int **data, uint rows, uint columns)
 {
     std::ostringstream ss;
     ss << "np.array([";
@@ -78,7 +96,7 @@ void loadtxt(std::string varName, int **array, uint rows, uint columns)
     {
         for (size_t x = 0; x < columns; x++)
         {
-            ss << array[y][x];
+            ss << data[y][x];
             if (y != rows - 1 || x != columns -1) {
                 ss << ",";
             }
@@ -90,21 +108,21 @@ void loadtxt(std::string varName, int **array, uint rows, uint columns)
     reshape(varName, rows, columns);
 }
 
-std::string loadtxt(double *array, uint length)
+std::string array(double *data, uint length)
 {
     std::string varName = randomString(10);
-    loadtxt(varName, array, length);
+    array(varName, data, length);
     
     return varName;
 }
 
-void loadtxt(std::string varName, double *array, uint length)
+void array(std::string varName, double *data, uint length)
 {
     std::ostringstream ss;
     ss << "np.array([";
     for (size_t i = 0; i < length; i++)
     {
-        ss << array[i];
+        ss << data[i];
         if (i != length - 1) {
             ss << ",";
         }
