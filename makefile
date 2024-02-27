@@ -13,6 +13,7 @@ CPP := g++
 CPPFLAGS := -Wall -std=c++23 # $(AUTO_DEP)
 
 magcompile:
+	mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) $(PYTHON_MAG) $(SRCS) -lpython3.10 -lm -o $(BUILD_DIR)/$(TARGET)
 	$(BUILD_DIR)/$(TARGET)
 
