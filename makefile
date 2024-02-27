@@ -5,17 +5,16 @@ SRC_DIR := ./src
 SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 TXT := $(shell find ./ -name '*.txt' -or -name '*.dat')
-# DEPS := $(OBJS:.o=.d)
-
-# INC_DIR := $(shell find $(SRC_DIR) -type d)
-# INC_FLAGS := $(addprefix -I,$(INC_DIR))
-# AUTO_DEP := $(INC_FLAGS) -MMD -MP
 
 PYTHON := -I/usr/include/python3.12 -lpython3.12
-PYTHON_MAG := -I/usr/include/python3.10 -lpython3.10
+PYTHON_MAG := -I/usr/include/python3.10
 
 CPP := g++
-CPPFLAGS := $(PYTHON) -std=c++23 # $(AUTO_DEP)
+CPPFLAGS := -Wall -std=c++23 # $(AUTO_DEP)
+
+magcompile:
+	$(CPP) $(CPPFLAGS) $(PYTHON_MAG) $(SRCS) -lpython3.10 -lm -o $(BUILD_DIR)/$(TARGET)
+	$(BUILD_DIR)/$(TARGET)
 
 $(BUILD_DIR)/$(TARGET): $(OBJS)
 	$(CPP) $(CPPFLAGS) $(OBJS) -o $@
