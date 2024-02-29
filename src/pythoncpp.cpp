@@ -3,14 +3,17 @@
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
+#include <format>
 
 namespace py {
-void openPython() {
+PyObject* openPython() {
     Py_Initialize();
     import("numpy", "np");
     import("matplotlib.pyplot", "plt");
+    PyRun_SimpleString("from matplotlib.widgets import Slider");
 
-    return;
+    return PyImport_AddModule("__main__");
 }
 
 void import(std::string module, std::string alias) {
@@ -19,6 +22,26 @@ void import(std::string module, std::string alias) {
 
 void import(std::string module) {
     PyRun_SimpleString(("import " + module).c_str());
+}
+
+std::string createVariable() {
+    std::string varName = randomString(10);
+    PyRun_SimpleString((varName + "= 0" ).c_str());
+    return varName;
+}
+
+void setDouble(std::string varName, double value) {
+    PyRun_SimpleString((varName + "=" + std::to_string(value)).c_str());
+}
+
+double getDouble(PyObject *m, std::string varName) {
+    PyObject *v = PyObject_GetAttrString(m, varName.c_str());
+
+    double result = PyFloat_AsDouble(v);
+    Py_DECREF(v);
+
+
+    return result;
 }
 
 void closePython() {
@@ -32,6 +55,7 @@ namespace plt {
 std::string figure() {
     std::string varName = randomString(10);
     PyRun_SimpleString((varName + " = plt.figure()").c_str());
+    return varName;
 }
 
 void ion() {
@@ -40,6 +64,25 @@ void ion() {
 
 void ioff() {
     PyRun_SimpleString("plt.ioff()");
+}
+
+std::string axes(double left, double bottom, double width, double height) {
+    std::string varName = randomString(10);
+    PyRun_SimpleString((varName + "= plt.axes([" + std::to_string(left) + "," + std::to_string(bottom) + "," + std::to_string(width) + ","+ std::to_string(height) + "])").c_str());
+    return varName;
+}
+
+std::string Slider(std::string ax, std::string label, double valmin, double valmax, std::string varToUpdate) {
+    std::string varName = randomString(10);
+    std::string updateFunctionName = randomString(10);
+   
+    std::string sliderCreation = std::format("{} = Slider({}, '{}', {}, {}, valinit={})", varName, ax, label, valmin, valmax, varToUpdate);
+
+    PyRun_SimpleString(("def " + updateFunctionName + "(value):\n\tglobal " + varToUpdate + "\n\t" + varToUpdate + "= value").c_str());
+    PyRun_SimpleString(sliderCreation.c_str());
+    PyRun_SimpleString((varName + ".on_changed(" + updateFunctionName + ")").c_str());
+
+    return varName;
 }
 
 void plot(std::string x, std::string y, std::string label) {

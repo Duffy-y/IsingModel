@@ -33,6 +33,7 @@
 
 # Results
 *.dat
+*.pdf
 
 .vscode
 .idea

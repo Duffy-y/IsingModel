@@ -8,11 +8,17 @@
 
 namespace py {
 /// @brief Initialise l'API Python-C
-void openPython();
+PyObject* openPython();
 
 void import(std::string module, std::string alias);
 
 void import(std::string module);
+
+std::string createVariable();
+
+void setDouble(std::string varName, double value);
+
+double getDouble(PyObject *m, std::string varName);
 
 /// @brief Ferme l'API Python-C
 void closePython();
@@ -25,6 +31,10 @@ std::string figure();
 void ion();
 
 void ioff();
+
+std::string axes(double left, double bottom, double width, double height);
+
+std::string Slider(std::string ax, std::string label, double valmin, double valmax, std::string varToUpdate);
 
 void plot(std::string x, std::string y, std::string label);
 

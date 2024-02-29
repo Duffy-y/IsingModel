@@ -30,23 +30,25 @@ void showAlgorithm(Ising::Lattice &lat, MC::Options options) {
 }
 
 int main(int argc, char *argv[]) {
-    py::openPython();
+    PyObject *m = py::openPython();
+    plt::ion();
     std::srand(std::time(NULL));
     
     Ising::Lattice lat = Ising::lattice(25, 25);
-    Ising::uniformSpin(lat, 1);
+    Ising::randomSpin(lat, 0.5);
 
     MC::Options options = MC::Options();
     options.J = 1;
     options.jumpSize = 50000;
-    options.T = 2.5;     options.kB = 1;
-    options.epochThreshold = 10000000;
+    options.T = 0.1;     
+    options.kB = 1;
+    options.epochThreshold = 2000000;
     options.relativeVariation = 0.0002; // Valeur raisonnable (~ 300 iterations Wolff pour un équilibre correct)
     options.mcIterator = MC::metropolisIteration;
     options.dataRecordDuration = 1;
 
-    showAlgorithm(lat, options);
-    
+    // showAlgorithm(lat, options);
+
     py::closePython();
     return 0;
 }
