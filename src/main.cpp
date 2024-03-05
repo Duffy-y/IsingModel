@@ -12,7 +12,7 @@
 // TODO: Une fonction qui plot les grandeurs moyennées.
 // TODO: PDF d'explication du Projet
 
-void showAlgorithm(Ising::Lattice &lat, MC::Options options) {
+void showAlgorithm(Ising::Lattice &lat, MC::Parameters options) {
     auto spin = np::array(lat.spin, lat.sizeY, lat.sizeX);
     for (size_t i = 0; i < options.epochThreshold; i++)
     {
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     Ising::Lattice lat = Ising::lattice(25, 25);
     Ising::randomSpin(lat, 0.5);
 
-    MC::Options options = MC::Options();
+    MC::Parameters options = MC::Parameters();
     options.J = 1;
     options.jumpSize = 50000;
     options.T = 0.1;     

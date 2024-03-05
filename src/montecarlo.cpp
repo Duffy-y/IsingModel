@@ -13,7 +13,7 @@ Site site(Ising::Lattice &lat, int x, int y) {
     return out;
 }
 
-void metropolisIteration(Ising::Lattice &lat, Options &options) {
+void metropolisIteration(Ising::Lattice &lat, Parameters &options) {
     int randomX = std::rand() % lat.sizeX;
     int randomY = std::rand() % lat.sizeY;
 
@@ -23,7 +23,7 @@ void metropolisIteration(Ising::Lattice &lat, Options &options) {
     }
 }
 
-void wolffIteration(Ising::Lattice &lat, Options &options) {
+void wolffIteration(Ising::Lattice &lat, Parameters &options) {
     int randomX = std::rand() % lat.sizeX;
     int randomY = std::rand() % lat.sizeY;
 
@@ -68,12 +68,12 @@ void wolffIteration(Ising::Lattice &lat, Options &options) {
     }
 }
 
-int atEquilibrium(Ising::Lattice &lat, Options &options, int oldEnergy, int newEnergy) {
+int atEquilibrium(Ising::Lattice &lat, Parameters &options, int oldEnergy, int newEnergy) {
     return fabs((newEnergy - oldEnergy) / (double)newEnergy) < options.relativeVariation;
 }
 
 
-int reachEquilibrium(Ising::Lattice &lat, Options &options) {
+int reachEquilibrium(Ising::Lattice &lat, Parameters &options) {
     int oldEnergy = Ising::latticeEnergy(lat, options.J);
     int newEnergy;
     int isEquilibrium = 0;
@@ -104,7 +104,7 @@ int reachEquilibrium(Ising::Lattice &lat, Options &options) {
     return i;
 }
 
-Properties thermalizeLattice(Ising::Lattice &lat, Options &options, double Ti, double Tf, uint samplingPoints) {
+Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti, double Tf, uint samplingPoints) {
     Properties props = Properties(); 
     props.E = (double*)malloc(sizeof(double) * samplingPoints);
     props.E_sq = (double*)malloc(sizeof(double) * samplingPoints);
