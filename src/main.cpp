@@ -30,7 +30,7 @@ void showAlgorithm(Ising::Lattice &lat, MC::Parameters options) {
 }
 
 int main(int argc, char *argv[]) {
-    PyObject *m = py::openPython();
+    py::openPython();
     plt::ion();
     std::srand(std::time(NULL));
     
