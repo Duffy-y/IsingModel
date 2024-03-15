@@ -6,7 +6,7 @@ Lattice lattice(const uint sizeX, const uint sizeY) {
     Lattice lat = Lattice();
     lat.spin = (int**)malloc(sizeof(int*) * sizeY);
         
-    for (int i = 0; i < sizeY; i++) {
+    for (uint i = 0; i < sizeY; i++) {
         lat.spin[i] = (int*)malloc(sizeof(int) * sizeX);
     }
 
@@ -22,7 +22,7 @@ Lattice lattice(const uint sizeX) {
 
 Lattice* latticeMulti(const uint sizeX, const uint sizeY, const uint latticeCount) {
     Lattice *lattices = (Lattice*)malloc(sizeof(Lattice) * latticeCount);
-    for (size_t i = 0; i < latticeCount; i++)
+    for (uint i = 0; i < latticeCount; i++)
     {
         lattices[i] = lattice(sizeX, sizeY);
     }
@@ -50,8 +50,8 @@ void flipSpin(Lattice &lat, const int x, const int y) {
 }
 
 void uniformSpin(Lattice &lat, const int spinValue) {
-    for (int y = 0; y < lat.sizeY; y++) {
-        for (int x = 0; x < lat.sizeX; x++) {
+    for (uint y = 0; y < lat.sizeY; y++) {
+        for (uint x = 0; x < lat.sizeX; x++) {
             setSpin(lat, x, y, spinValue);
         }
     }
@@ -61,8 +61,8 @@ void randomSpin(Lattice &lat, const double p) {
     assert(p >= 0);
     int spinValue = 0;
     
-    for (int y = 0; y < lat.sizeY; y++) {
-        for (int x = 0; x < lat.sizeX; x++) {
+    for (uint y = 0; y < lat.sizeY; y++) {
+        for (uint x = 0; x < lat.sizeX; x++) {
             spinValue = (double)std::rand() / RAND_MAX < p ? UP : DOWN;
             setSpin(lat, x, y, spinValue);
         }
@@ -71,8 +71,8 @@ void randomSpin(Lattice &lat, const double p) {
 
 int latticeEnergy(Lattice &lat, int J) {
     int latEnergy = 0;
-    for (int y = 0; y < lat.sizeY; y++) {
-        for (int x = 0; x < lat.sizeX; x++) {
+    for (uint y = 0; y < lat.sizeY; y++) {
+        for (uint x = 0; x < lat.sizeX; x++) {
             latEnergy -= J * getSpin(lat, x, y) * (getSpin(lat, x + 1, y) + getSpin(lat, x, y + 1));
         }
     }
@@ -86,8 +86,8 @@ int swappingEnergy(Lattice &lat, const int x, const int y, int J) {
 
 double magnetization(Lattice &lat) {
     double mag = 0;
-    for (int y = 0; y < lat.sizeY; y++) {
-        for (int x = 0; x < lat.sizeY; x++) {
+    for (uint y = 0; y < lat.sizeY; y++) {
+        for (uint x = 0; x < lat.sizeY; x++) {
             mag += getSpin(lat, x, y);
         }
     }
@@ -96,7 +96,7 @@ double magnetization(Lattice &lat) {
 
 double meanMagnetization(Lattice *lat, uint latticeCount) {
     double mag = 0;
-    for (size_t i = 0; i < latticeCount; i++)
+    for (uint i = 0; i < latticeCount; i++)
     {
         mag += magnetization(lat[i]);
     }

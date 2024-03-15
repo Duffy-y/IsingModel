@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     options.mcIterator = MC::metropolisIteration;
     options.dataRecordDuration = 1;
 
-    // showAlgorithm(lat, options);
+    showAlgorithm(lat, options);
 
     py::closePython();
     return 0;
