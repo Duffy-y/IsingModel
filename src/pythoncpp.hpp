@@ -51,6 +51,8 @@ void title(std::string title);
 void xlabel(std::string xlabel);
 
 void ylabel(std::string ylabel);
+
+void colorbar();
 }
 
 namespace np {

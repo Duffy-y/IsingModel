@@ -40,7 +40,6 @@ double getDouble(PyObject *m, std::string varName) {
     double result = PyFloat_AsDouble(v);
     Py_DECREF(v);
 
-
     return result;
 }
 
@@ -92,7 +91,7 @@ void plot(std::string x, std::string y, std::string label) {
 }
 
 void imshow(std::string X, std::string cmap) {
-    PyRun_SimpleString(("plt.imshow(" + X + ",cmap='" + cmap + "')").c_str());
+    PyRun_SimpleString(("plt.imshow(" + X + ",cmap='" + cmap + "', vmin=-1, vmax=1)").c_str());
 }
 
 void show() {
@@ -119,6 +118,10 @@ void xlabel(std::string xlabel)
 void ylabel(std::string ylabel)
 {
     PyRun_SimpleString(("plt.ylabel('" + ylabel + "')").c_str());
+}
+
+void colorbar() {
+    PyRun_SimpleString("plt.colorbar()");
 }
 }
 
