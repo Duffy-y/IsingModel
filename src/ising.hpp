@@ -77,15 +77,17 @@ void randomSpin(Lattice &lat, const double p);
 
 /// @brief Détermine l'hamiltonien du réseau entier
 /// @param lat Réseau de spin
+/// @param J Paramètre de couplage entre spin
 /// @return Energie du réseau
-int latticeEnergy(Lattice &lat, int J);
+int latticeEnergy(Lattice &lat, int J, int h);
 
 /// @brief Calcule le gain d'énergie en cas de spin-flip
 /// @param lat Réseau de spin
 /// @param x Coordonnée x du spin à retourner 
 /// @param y Coordonnée y du spin à retourner
+/// @param J Paramètre de couplage entre spin
 /// @return Gain d'énergie pour le réseau en cas d'énergie (E > 0 <=> Destabilisation, E < 0 <=> Stabilisation)
-int swappingEnergy(Lattice &lat, const int x, const int y, int J);
+int swappingEnergy(Lattice &lat, const int x, const int y, int J, int h);
 
 /// @brief Calcule le taux de magnétisation du milieu
 /// @param lat Réseau de spin

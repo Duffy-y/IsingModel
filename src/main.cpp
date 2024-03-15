@@ -22,7 +22,7 @@ void showAlgorithm(Ising::Lattice &lat, MC::Parameters options) {
             plt::ylabel("Y");
             plt::title(std::to_string(i) + ", Xi = " + std::to_string(Ising::magnetization(lat)));
             np::array(spin, lat.spin, lat.sizeY, lat.sizeX);
-            plt::imshow(spin, cmap_seismic);
+            plt::imshow(spin, CMAP_seismic);
             plt::pause();
         }
         options.mcIterator(lat, options);
@@ -39,10 +39,11 @@ int main(int argc, char *argv[]) {
 
     MC::Parameters options = MC::Parameters();
     options.J = 1;
-    options.jumpSize = 50000;
-    options.T = 0.1;     
+    options.h = 0;
+    options.jumpSize = 15;
+    options.T = 2.5;     
     options.kB = 1;
-    options.epochThreshold = 2000000;
+    options.epochThreshold = 200;
     options.relativeVariation = 0.0002; // Valeur raisonnable (~ 300 iterations Wolff pour un équilibre correct)
     options.mcIterator = MC::metropolisIteration;
     options.dataRecordDuration = 1;

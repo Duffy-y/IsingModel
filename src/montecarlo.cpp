@@ -17,7 +17,7 @@ void metropolisIteration(Ising::Lattice &lat, Parameters &options) {
     int randomX = std::rand() % lat.sizeX;
     int randomY = std::rand() % lat.sizeY;
 
-    const int deltaE = Ising::swappingEnergy(lat, randomX, randomY, options.J);
+    const int deltaE = Ising::swappingEnergy(lat, randomX, randomY, options.J, options.h);
     if (deltaE <= 0 || (double)std::rand() / RAND_MAX < std::exp(-deltaE/(options.kB * options.T))) {
         Ising::flipSpin(lat, randomX, randomY);
     }
@@ -37,8 +37,6 @@ void wolffIteration(Ising::Lattice &lat, Parameters &options) {
     while(!stack.empty()) {
         visitedSite = stack.top();
         stack.pop();
-
-        visitedSpin = Ising::getSpin(lat, visitedSite.x, visitedSite.y);
         
         if (spin0 == Ising::getSpin(lat, visitedSite.x + 1, visitedSite.y)) {
             int isNeighborAccepted = (double)std::rand() / RAND_MAX < 1 - std::exp(- 2 / (options.kB * options.T));
@@ -74,7 +72,7 @@ int atEquilibrium(Ising::Lattice &lat, Parameters &options, int oldEnergy, int n
 
 
 int reachEquilibrium(Ising::Lattice &lat, Parameters &options) {
-    int oldEnergy = Ising::latticeEnergy(lat, options.J);
+    int oldEnergy = Ising::latticeEnergy(lat, options.J, options.h);
     int newEnergy;
     int isEquilibrium = 0;
     int confirmEquilibrium = 0;
@@ -82,7 +80,7 @@ int reachEquilibrium(Ising::Lattice &lat, Parameters &options) {
     uint i = 0;
     while (i < options.epochThreshold && !isEquilibrium) {
         if (i % options.jumpSize == 0) {
-            newEnergy = Ising::latticeEnergy(lat, options.J);
+            newEnergy = Ising::latticeEnergy(lat, options.J, options.h);
             isEquilibrium = atEquilibrium(lat, options, oldEnergy, newEnergy);
             oldEnergy = newEnergy;
 
@@ -127,9 +125,9 @@ Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti
         equilibriumSteps = reachEquilibrium(lat, options);
         meanSteps = options.dataRecordDuration * equilibriumSteps;
         
-        for (size_t j = 0; j < meanSteps; j++)
+        for (int j = 0; j < meanSteps; j++)
         {
-            E = Ising::latticeEnergy(lat, options.J);
+            E = Ising::latticeEnergy(lat, options.J, options.h);
             m = Ising::magnetization(lat);
             props.E[i] += E;
             props.E_sq[i] += E * E;

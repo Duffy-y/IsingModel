@@ -14,6 +14,7 @@ struct Parameters
     void (*mcIterator)(Ising::Lattice&, Parameters&);
 
     int J;
+    int h;
     double T;
     double kB;
 };

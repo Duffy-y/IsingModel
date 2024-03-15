@@ -69,19 +69,20 @@ void randomSpin(Lattice &lat, const double p) {
     }
 }
 
-int latticeEnergy(Lattice &lat, int J) {
+int latticeEnergy(Lattice &lat, int J, int h) {
     int latEnergy = 0;
     for (uint y = 0; y < lat.sizeY; y++) {
         for (uint x = 0; x < lat.sizeX; x++) {
-            latEnergy -= J * getSpin(lat, x, y) * (getSpin(lat, x + 1, y) + getSpin(lat, x, y + 1));
+            latEnergy -= J * getSpin(lat, x, y) * ( getSpin(lat, x + 1, y) + getSpin(lat, x, y + 1) );
+            latEnergy -= h * getSpin(lat, x, y);
         }
     }
     return latEnergy;
 }
 
-int swappingEnergy(Lattice &lat, const int x, const int y, int J) {
+int swappingEnergy(Lattice &lat, const int x, const int y, int J, int h) {
     const int neighbor_count = getSpin(lat, x + 1, y) + getSpin(lat, x, y + 1) + getSpin(lat, x - 1, y) + getSpin(lat, x, y - 1);
-    return 2 * J * getSpin(lat, x, y) * neighbor_count;
+    return 2 * J * getSpin(lat, x, y) * neighbor_count + 2 * h * getSpin(lat, x, y);
 }
 
 double magnetization(Lattice &lat) {
