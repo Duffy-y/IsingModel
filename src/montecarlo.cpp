@@ -17,7 +17,9 @@ void metropolisIteration(Ising::Lattice &lat, Parameters &options) {
     int randomX = std::rand() % lat.sizeX;
     int randomY = std::rand() % lat.sizeY;
 
-    const int deltaE = Ising::swappingEnergy(lat, randomX, randomY, options.J, options.h);
+    const double deltaE = Ising::swappingEnergy(lat, randomX, randomY, options.J, options.h);
+    const double deltaM = Ising::swappingMagnetization(lat, randomX, randomY);
+    
     if (deltaE <= 0 || (double)std::rand() / RAND_MAX < std::exp(-deltaE/(options.kB * options.T))) {
         Ising::flipSpin(lat, randomX, randomY);
     }
@@ -31,7 +33,6 @@ void wolffIteration(Ising::Lattice &lat, Parameters &options) {
     stack.push(site(lat, randomX, randomY));
 
     Site visitedSite;
-    int visitedSpin;
     int spin0 = Ising::getSpin(lat, randomX, randomY);
 
     while(!stack.empty()) {
@@ -89,6 +90,7 @@ int reachEquilibrium(Ising::Lattice &lat, Parameters &options) {
                 isEquilibrium = 0;
             }
             else if (isEquilibrium && confirmEquilibrium) {
+                std::cout << "[MC] Equilibrium state found.\n";
                 break;
             }
             else if (!isEquilibrium && confirmEquilibrium) {
@@ -103,23 +105,25 @@ int reachEquilibrium(Ising::Lattice &lat, Parameters &options) {
 }
 
 Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti, double Tf, uint samplingPoints) {
+    assert(samplingPoints > 1);
+
     Properties props = Properties(); 
-    props.E = (double*)malloc(sizeof(double) * samplingPoints);
-    props.E_sq = (double*)malloc(sizeof(double) * samplingPoints);
-    props.M = (double*)malloc(sizeof(double) * samplingPoints);
-    props.M_sq = (double*)malloc(sizeof(double) * samplingPoints);
-    props.M_abs = (double*)malloc(sizeof(double) * samplingPoints);
-    props.T = (double*)malloc(sizeof(double) * samplingPoints);
+    props.E = new double[samplingPoints];
+    props.E_sq = new double[samplingPoints];
+    props.M = new double[samplingPoints];
+    props.M_sq = new double[samplingPoints];
+    props.M_abs = new double[samplingPoints];
+    props.T = new double[samplingPoints];
     
     options.T = std::min(Ti, Tf);
     double dT = fabs(Tf - Ti) / (samplingPoints - 1);
 
     int equilibriumSteps;
     int meanSteps;
-    int E;
+    double E;
     double m;
 
-    for (size_t i = 0; i < samplingPoints; i++)
+    for (uint i = 0; i < samplingPoints; i++)
     {
         std::cout << "[Thermalize] T = " << options.T << "\n";
         equilibriumSteps = reachEquilibrium(lat, options);
@@ -129,13 +133,12 @@ Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti
         {
             E = Ising::latticeEnergy(lat, options.J, options.h);
             m = Ising::magnetization(lat);
-            props.E[i] += E;
-            props.E_sq[i] += E * E;
+            props.E[i] += E / lat.sizeXY;
+            props.E_sq[i] += E * E / (lat.sizeXY * lat.sizeXY);
             props.M[i] += m;
             props.M_sq[i] += m*m;
             props.M_abs[i] += fabs(m);
             options.mcIterator(lat, options);
-
         }
 
         props.T[i] = options.T;

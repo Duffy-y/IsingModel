@@ -8,13 +8,13 @@ struct Parameters
 {
     uint epochThreshold;
     uint jumpSize; 
-    uint dataRecordDuration;
+    double dataRecordDuration;
     double relativeVariation;
 
     void (*mcIterator)(Ising::Lattice&, Parameters&);
 
-    int J;
-    int h;
+    double J;
+    double h;
     double T;
     double kB;
 };
