@@ -2,6 +2,8 @@
 
 namespace Ising {
 
+int zero = 0;
+
 Lattice lattice(const uint sizeX, const uint sizeY) {
     Lattice lat = Lattice();
     lat.spin = (int**)malloc(sizeof(int*) * sizeY);
@@ -12,6 +14,7 @@ Lattice lattice(const uint sizeX, const uint sizeY) {
 
     lat.sizeX = sizeX;
     lat.sizeY = sizeY;
+    lat.sizeXY = sizeX * sizeY;
 
     return lat;
 }
@@ -20,20 +23,11 @@ Lattice lattice(const uint sizeX) {
     return lattice(sizeX, 1);
 }
 
-Lattice* latticeMulti(const uint sizeX, const uint sizeY, const uint latticeCount) {
-    Lattice *lattices = (Lattice*)malloc(sizeof(Lattice) * latticeCount);
-    for (uint i = 0; i < latticeCount; i++)
-    {
-        lattices[i] = lattice(sizeX, sizeY);
-    }
-    return lattices;
-}
-
-Lattice* latticeMulti(const uint sizeX, const uint latticeCount) {
-    return latticeMulti(sizeX, 1, latticeCount);
-}
-
 int* _getSpinRef(Lattice &lat, const int x, const int y) {
+    // * Dans le cas 1D, cela évite le comptage de la case  (x,y) elle-même à cause de pcy().
+    if (lat.sizeY == 1 && y != 0) {
+        return &zero;
+    }
     return &lat.spin[pcy(lat, y)][pcx(lat, x)];
 }
 
@@ -69,7 +63,7 @@ void randomSpin(Lattice &lat, const double p) {
     }
 }
 
-int latticeEnergy(Lattice &lat, int J, int h) {
+double latticeEnergy(Lattice &lat, double J, double h) {
     int latEnergy = 0;
     for (uint y = 0; y < lat.sizeY; y++) {
         for (uint x = 0; x < lat.sizeX; x++) {
@@ -80,7 +74,7 @@ int latticeEnergy(Lattice &lat, int J, int h) {
     return latEnergy;
 }
 
-int swappingEnergy(Lattice &lat, const int x, const int y, int J, int h) {
+double swappingEnergy(Lattice &lat, const int x, const int y, double J, double h) {
     const int neighbor_count = getSpin(lat, x + 1, y) + getSpin(lat, x, y + 1) + getSpin(lat, x - 1, y) + getSpin(lat, x, y - 1);
     return 2 * J * getSpin(lat, x, y) * neighbor_count + 2 * h * getSpin(lat, x, y);
 }
@@ -92,16 +86,11 @@ double magnetization(Lattice &lat) {
             mag += getSpin(lat, x, y);
         }
     }
-    return mag / (lat.sizeY * lat.sizeX);
+    return mag / lat.sizeXY;
 }
 
-double meanMagnetization(Lattice *lat, uint latticeCount) {
-    double mag = 0;
-    for (uint i = 0; i < latticeCount; i++)
-    {
-        mag += magnetization(lat[i]);
-    }
-    return mag / latticeCount;
+double swappingMagnetization(Lattice &lat, const int x, const int y) {
+    return -getSpin(lat, x, y) / lat.sizeXY;
 }
 
 int pcx(Lattice &lat, int x) {
@@ -112,5 +101,4 @@ int pcy(Lattice &lat, int y) {
     // * (y + lat.sizeY): petite astuce pour ne pas avoir à définir une méthode de modulo positive.
     return (y + lat.sizeY) % lat.sizeY;
 }
-
 }

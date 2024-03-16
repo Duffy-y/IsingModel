@@ -12,6 +12,7 @@ struct Lattice {
     int **spin;
     uint sizeX;
     uint sizeY;
+    double sizeXY;
 };
 
 /// @brief Alloue un réseau de spin 2D de taille donné.
@@ -24,19 +25,6 @@ Lattice lattice(const uint sizeX, const uint sizeY);
 /// @param sizeX Taille selon axe X
 /// @return Réseau de spin alloué
 Lattice lattice(const uint sizeX);
-
-/// @brief Alloue plusieurs réseaux de spin 2D de taille donné. Pertinent pour moyennage des grandeurs physiques.
-/// @param sizeX Taille selon axe X
-/// @param sizeY Taille selon axe Y
-/// @param latticeCount Nombre de réseaux de spin à allouer.
-/// @return Tableau contenant les réseaux de spin alloués.
-Lattice *latticeMulti(const uint sizeX, const uint sizeY, const uint latticeCount);
-
-/// @brief Alloue plusieurs réseaux de spin 1D de taille donné. Pertinent pour moyennage des grandeurs physiques.
-/// @param sizeX Taille selon axe X
-/// @param latticeCount Nombre de réseaux de spin à allouer.
-/// @return Tableau contenant les réseaux de spin alloués.
-Lattice *latticeMulti(const uint sizeX, const uint latticeCount);
 
 /// @brief Retourne l'adresse mémoire d'un site de spin de coordonnées (x, y) en tenant compte de la périodicité.
 /// @param lat Réseau de spin à considérer
@@ -79,7 +67,7 @@ void randomSpin(Lattice &lat, const double p);
 /// @param lat Réseau de spin
 /// @param J Paramètre de couplage entre spin
 /// @return Energie du réseau
-int latticeEnergy(Lattice &lat, int J, int h);
+double latticeEnergy(Lattice &lat, double J, double h);
 
 /// @brief Calcule le gain d'énergie en cas de spin-flip
 /// @param lat Réseau de spin
@@ -87,19 +75,17 @@ int latticeEnergy(Lattice &lat, int J, int h);
 /// @param y Coordonnée y du spin à retourner
 /// @param J Paramètre de couplage entre spin
 /// @return Gain d'énergie pour le réseau en cas d'énergie (E > 0 <=> Destabilisation, E < 0 <=> Stabilisation)
-int swappingEnergy(Lattice &lat, const int x, const int y, int J, int h);
+double swappingEnergy(Lattice &lat, const int x, const int y, double J, double h);
 
 /// @brief Calcule le taux de magnétisation du milieu
 /// @param lat Réseau de spin
 /// @return Taux de magnétisation du milieu (en %)
 double magnetization(Lattice &lat);
 
-/// @brief Calcule le taux de magnétisation moyen sur un ensemble de réseau de spin
-/// @param lat Tableau contenant des réseaux de spin
-/// @param latticeCount Taille du tableau
-/// @return Taux de magnétisation moyen
-double meanMagnetization(Lattice *lat, uint latticeCount);
-
+/// @brief Calcule le changement de taux de magnétisation du milieu
+/// @param lat Réseau de spin
+/// @return Changement du taux de magnétisation du milieu (en %)
+double swappingMagnetization(Lattice &lat, const int x, const int y);
 
 int pcx(Lattice &lat, int i);
 
