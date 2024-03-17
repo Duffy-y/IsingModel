@@ -1,6 +1,10 @@
 #pragma once
 
 #include "ising.hpp"
+#include <stack>
+#include <list>
+#include <cmath>
+#include <iostream>
 
 namespace MC {
 
@@ -11,13 +15,18 @@ struct Parameters
     double dataRecordDuration;
     double relativeVariation;
 
-    void (*mcIterator)(Ising::Lattice&, Parameters&);
+    void (*mcIterator)(Ising::Lattice&, Parameters&, double&, double&);
+    void (*mcIteratorVoid)(Ising::Lattice&, Parameters&);
 
     double J;
     double h;
     double T;
     double kB;
 };
+
+Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDuration, double relativeVariation, void (*setIterator)(Parameters&) = setMetropolis, double T = 0.5, double J = 1, double h = 0, double kB = 1);
+void setMetropolis(Parameters &options);
+void setWolff(Parameters &options);
 
 struct Properties {
     double *T;
@@ -37,7 +46,14 @@ Site site(Ising::Lattice &lat, int x, int y);
 
 /// @brief Effectue une seule itération de l'algorithme de Metropolis sur le réseau
 /// @param lat Réseau de spin
-/// @param T Température du réseau
+/// @param options Paramètres de simulation
+/// @param deltaE Variable où stocker la différence d'énergie du mouvement Monte-Carlo
+/// @param deltaM Variable où stocker la différence de magnetisation du mouvement Monte-Carlo
+void metropolisIteration(Ising::Lattice &lat, Parameters &options, double &deltaE, double &deltaM);
+
+/// @brief Effectue une seule itération de l'algorithme de Metropolis sur le réseau
+/// @param lat Réseau de spin
+/// @param options Paramètres de simulation
 void metropolisIteration(Ising::Lattice &lat, Parameters &options);
 
 /// @brief Effectue une seule itération de l'algorithme de Wolff sur le réseau.
@@ -46,8 +62,8 @@ void metropolisIteration(Ising::Lattice &lat, Parameters &options);
 /// Stack = pas de fonction récursive sujette à exploser le call stack (8Mb sur Fedora par défaut).
 /// Un stack offre autant d'appels que de RAM disponible.
 /// @param lat Réseau de spin
-/// @param T Température du réseau
-void wolffIteration(Ising::Lattice &lat, Parameters &options);
+/// @param options Paramètres de simulation 
+void wolffIteration(Ising::Lattice &lat, Parameters &options, double &deltaE, double &deltaM);
 
 /// @brief Vérifie si la variation relative d'énergie est sous un seuil donné qu'on considère comme équilibre.
 /// @param lat Réseau de spin
