@@ -104,37 +104,44 @@ int atEquilibrium(Ising::Lattice &lat, Parameters &options, int oldEnergy, int n
 }
 
 
-// int reachEquilibrium(Ising::Lattice &lat, Parameters &options) {
-//     int oldEnergy = Ising::latticeEnergy(lat, options.J, options.h);
-//     int newEnergy;
-//     int isEquilibrium = 0;
-//     int confirmEquilibrium = 0;
+uint reachEquilibrium(Ising::Lattice &lat, Parameters &options) {
+    // Propriétés du réseau.
+    double energy = Ising::latticeEnergy(lat, options.J, options.h);
+    double oldEnergy = energy;
+    double magnetization = Ising::magnetization(lat);
+    double deltaE = 0;
+    double deltaM = 0;
+    
+    // Suivi de l'équilibre
+    int isEquilibrium = 0;
+    int confirmEquilibrium = 0;
 
-//     uint i = 0;
-//     while (i < options.epochThreshold && !isEquilibrium) {
-//         if (i % options.jumpSize == 0) {
-//             newEnergy = Ising::latticeEnergy(lat, options.J, options.h);
-//             isEquilibrium = atEquilibrium(lat, options, oldEnergy, newEnergy);
-//             oldEnergy = newEnergy;
+    uint i = 0;
+    while (i < options.epochThreshold && !isEquilibrium) {
+        if (i % options.jumpSize == 0) {
+            isEquilibrium = atEquilibrium(lat, options, oldEnergy, energy);
+            oldEnergy = energy;
 
-//             if (isEquilibrium && !confirmEquilibrium) {
-//                 confirmEquilibrium = 1;
-//                 isEquilibrium = 0;
-//             }
-//             else if (isEquilibrium && confirmEquilibrium) {
-//                 std::cout << "[MC] Equilibrium state found.\n";
-//                 break;
-//             }
-//             else if (!isEquilibrium && confirmEquilibrium) {
-//                 confirmEquilibrium = 0;
-//             }
-//         }
-//         options.mcIterator(lat, options);
+            if (isEquilibrium && !confirmEquilibrium) {
+                confirmEquilibrium = 1;
+                isEquilibrium = 0;
+            }
+            else if (isEquilibrium && confirmEquilibrium) {
+                std::cout << "[MC] Equilibrium state found.\n";
+                break;
+            }
+            else if (!isEquilibrium && confirmEquilibrium) {
+                confirmEquilibrium = 0;
+            }
+        }
+        options.mcIterator(lat, options, deltaE, deltaM);
+        energy += deltaE;
+        magnetization += deltaM;
 
-//         i++;
-//     }
-//     return i;
-// }
+        i++;
+    }
+    return i;
+}
 
 // Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti, double Tf, uint samplingPoints) {
 //     assert(samplingPoints > 1);

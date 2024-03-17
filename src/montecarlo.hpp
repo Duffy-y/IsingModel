@@ -83,7 +83,7 @@ int atEquilibrium(Ising::Lattice &lat, Parameters &options, int oldEnergy, int n
 /// @param lat Réseau de spin
 /// @param options Paramètres de simulation
 /// @return Nombre d'itérations nécessaire pour atteindre l'équilibre.
-int reachEquilibrium(Ising::Lattice &lat, Parameters &options);
+uint reachEquilibrium(Ising::Lattice &lat, Parameters &options);
 
 /// @brief Fait varier la température progressivement pour obtenir l'évolution des grandeurs moyennes selon la température
 /// @param lat Réseau de spin
