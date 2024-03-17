@@ -16,7 +16,6 @@ struct Parameters
     double relativeVariation;
 
     void (*mcIterator)(Ising::Lattice&, Parameters&, double&, double&);
-    void (*mcIteratorVoid)(Ising::Lattice&, Parameters&);
 
     double J;
     double h;
@@ -24,11 +23,7 @@ struct Parameters
     double kB;
 };
 
-Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDuration, double relativeVariation, void (*setIterator)(Parameters&), double T, double J, double h, double kB);
-
-void setMetropolis(Parameters &options);
-
-// void setWolff(Parameters &options);
+Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDuration, double relativeVariation, void (*mcIterator)(Ising::Lattice&, Parameters&, double&, double&), double T, double J, double h, double kB);
 
 
 struct Properties {

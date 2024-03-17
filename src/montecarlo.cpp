@@ -1,7 +1,7 @@
 #include "montecarlo.hpp"
 
 namespace MC {
-Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDuration, double relativeVariation, void (*setIterator)(Parameters&), double T, double J, double h, double kB) {
+Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDuration, double relativeVariation, void (*mcIterator)(Ising::Lattice&, Parameters&, double&, double&), double T, double J, double h, double kB) {
     Parameters options = Parameters();
     options.epochThreshold = epochTreshold;
     options.J = J;
@@ -11,15 +11,9 @@ Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDurati
     options.kB = kB;
     options.relativeVariation = relativeVariation;
     options.dataRecordDuration = dataRecordDuration;
-
-    setIterator(options);
+    options.mcIterator = mcIterator;
 
     return options;
-}
-
-void setMetropolis(Parameters &options) {
-    options.mcIterator = metropolisIteration;
-    options.mcIterator = metropolisIteration;
 }
 
 Site site(Ising::Lattice &lat, int x, int y) {
@@ -43,11 +37,6 @@ void metropolisIteration(Ising::Lattice &lat, Parameters &options, double &delta
         deltaE = 0;
         deltaM = 0;
     }
-}
-
-void metropolisIteration(Ising::Lattice &lat, Parameters &options) {
-    double null = 0;
-    metropolisIteration(lat, options, null, null);
 }
 
 
