@@ -86,11 +86,11 @@ double magnetization(Lattice &lat) {
             mag += getSpin(lat, x, y);
         }
     }
-    return mag / lat.sizeXY;
+    return mag;
 }
 
 double swappingMagnetization(Lattice &lat, const int x, const int y) {
-    return - 2 * getSpin(lat, x, y) / lat.sizeXY;
+    return - 2 * getSpin(lat, x, y);
 }
 
 int pcx(Lattice &lat, int x) {

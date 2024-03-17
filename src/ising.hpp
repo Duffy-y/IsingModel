@@ -79,12 +79,12 @@ double swappingEnergy(Lattice &lat, const int x, const int y, double J, double h
 
 /// @brief Calcule le taux de magnétisation du milieu
 /// @param lat Réseau de spin
-/// @return Taux de magnétisation du milieu (en %)
+/// @return Magnétisation du milieu
 double magnetization(Lattice &lat);
 
-/// @brief Calcule le changement de taux de magnétisation du milieu
+/// @brief Calcule le changement de magnétisation du milieu
 /// @param lat Réseau de spin
-/// @return Changement du taux de magnétisation du milieu (en %)
+/// @return Changement de la magnétisation du milieu
 double swappingMagnetization(Lattice &lat, const int x, const int y);
 
 int pcx(Lattice &lat, int i);
