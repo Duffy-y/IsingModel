@@ -82,8 +82,10 @@ int atEquilibrium(Ising::Lattice &lat, Parameters &options, int oldEnergy, int n
 /// @brief Itère un des deux algorithmes Monte-Carlo pour emmener le réseau à l'équilibre dans les conditions données.
 /// @param lat Réseau de spin
 /// @param options Paramètres de simulation
+/// @param energy Energie du réseau (doit être initialisée à la valeur actuelle préalablement)
+/// @param magnetization Magnetisation du réseau (doit être initialisée à la valeur actuelle préalablement)
 /// @return Nombre d'itérations nécessaire pour atteindre l'équilibre.
-uint reachEquilibrium(Ising::Lattice &lat, Parameters &options);
+uint reachEquilibrium(Ising::Lattice &lat, Parameters &options, double &energy, double &magnetization);
 
 /// @brief Fait varier la température progressivement pour obtenir l'évolution des grandeurs moyennes selon la température
 /// @param lat Réseau de spin

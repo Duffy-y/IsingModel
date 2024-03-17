@@ -95,8 +95,8 @@ void wolffIteration(Ising::Lattice &lat, Parameters &options, double &deltaE, do
     for (auto it = rejectedSite.begin(); it != rejectedSite.end(); it++) {
         clusterNeighbor += it->second;
     }
-    deltaE = 2 * options.J * spin0 * clusterNeighbor + 2 * options.h * clusterSpin;
-    deltaM = - 2 * clusterSpin / lat.sizeXY;
+    deltaE = 2 * options.J * spin0 * clusterNeighbor;
+    deltaM = - 2 * clusterSpin;
 }
 
 int atEquilibrium(Ising::Lattice &lat, Parameters &options, int oldEnergy, int newEnergy) {
@@ -104,11 +104,9 @@ int atEquilibrium(Ising::Lattice &lat, Parameters &options, int oldEnergy, int n
 }
 
 
-uint reachEquilibrium(Ising::Lattice &lat, Parameters &options) {
+uint reachEquilibrium(Ising::Lattice &lat, Parameters &options, double &energy, double &magnetization) {
     // Propriétés du réseau.
-    double energy = Ising::latticeEnergy(lat, options.J, options.h);
     double oldEnergy = energy;
-    double magnetization = Ising::magnetization(lat);
     double deltaE = 0;
     double deltaM = 0;
     
@@ -143,53 +141,63 @@ uint reachEquilibrium(Ising::Lattice &lat, Parameters &options) {
     return i;
 }
 
-// Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti, double Tf, uint samplingPoints) {
-//     assert(samplingPoints > 1);
+Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti, double Tf, uint samplingPoints) {
+    assert(samplingPoints > 1);
 
-//     Properties props = Properties(); 
-//     props.E = new double[samplingPoints];
-//     props.E_sq = new double[samplingPoints];
-//     props.M = new double[samplingPoints];
-//     props.M_sq = new double[samplingPoints];
-//     props.M_abs = new double[samplingPoints];
-//     props.T = new double[samplingPoints];
+    Properties props = Properties(); 
+    props.E = new double[samplingPoints];
+    props.E_sq = new double[samplingPoints];
+    props.M = new double[samplingPoints];
+    props.M_sq = new double[samplingPoints];
+    props.M_abs = new double[samplingPoints];
+    props.T = new double[samplingPoints];
     
-//     options.T = std::min(Ti, Tf);
-//     double dT = fabs(Tf - Ti) / (samplingPoints - 1);
+    options.T = std::min(Ti, Tf);
+    double dT = fabs(Tf - Ti) / (samplingPoints - 1);
 
-//     int equilibriumSteps;
-//     int meanSteps;
-//     double E;
-//     double m;
+    int equilibriumSteps;
+    int meanSteps;
 
-//     for (uint i = 0; i < samplingPoints; i++)
-//     {
-//         std::cout << "[Thermalize] T = " << options.T << "\n";
-//         equilibriumSteps = reachEquilibrium(lat, options);
-//         meanSteps = options.dataRecordDuration * equilibriumSteps;
+    double energy = Ising::latticeEnergy(lat, options.J, options.h);
+    double magnetization = Ising::magnetization(lat);
+    double deltaE = 0;
+    double deltaM = 0;
+
+    for (uint i = 0; i < samplingPoints; i++)
+    {
+        std::cout << "[Thermalize] T = " << options.T << "\n";
+        equilibriumSteps = reachEquilibrium(lat, options, energy, magnetization);
+        meanSteps = options.dataRecordDuration * equilibriumSteps;
         
-//         for (int j = 0; j < meanSteps; j++)
-//         {
-//             E = Ising::latticeEnergy(lat, options.J, options.h);
-//             m = Ising::magnetization(lat);
-//             props.E[i] += E / lat.sizeXY;
-//             props.E_sq[i] += E * E / (lat.sizeXY * lat.sizeXY);
-//             props.M[i] += m;
-//             props.M_sq[i] += m*m;
-//             props.M_abs[i] += fabs(m);
-//             options.mcIterator(lat, options);
-//         }
+        props.E[i] = 0;
+        props.E_sq[i] = 0;
+        props.M[i] = 0;
+        props.M_sq[i] = 0;
+        props.M_abs[i] = 0;
 
-//         props.T[i] = options.T;
-//         props.E[i] /= meanSteps;
-//         props.E_sq[i] /= meanSteps;
-//         props.M[i] /= meanSteps;
-//         props.M_sq[i] /= meanSteps;
-//         props.M_abs[i] /= meanSteps;
+        for (int j = 0; j < meanSteps; j++)
+        {
+            props.E[i] += energy;
+            props.E_sq[i] += energy * energy;
+            props.M[i] += magnetization;
+            props.M_sq[i] += magnetization*magnetization;
+            props.M_abs[i] += fabs(magnetization);
+            
+            options.mcIterator(lat, options, deltaE, deltaM);
+            energy += deltaE;
+            magnetization += deltaM;
+        }
+
+        props.T[i] = options.T;
+        props.E[i] /= meanSteps; // On normalise l'énergie par spin.
+        props.E_sq[i] /= meanSteps;
+        props.M[i] /= meanSteps;
+        props.M_sq[i] /= meanSteps;
+        props.M_abs[i] /= meanSteps;
         
-//         options.T += dT;
-//     }
-//     return props;
-// }
+        options.T += dT;
+    }
+    return props;
+}
 
 }
