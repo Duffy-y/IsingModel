@@ -3,6 +3,7 @@
 #include "ising.hpp"
 #include <stack>
 #include <list>
+#include <map>
 #include <cmath>
 #include <iostream>
 
@@ -25,7 +26,6 @@ struct Parameters
 
 Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDuration, double relativeVariation, void (*mcIterator)(Ising::Lattice&, Parameters&, double&, double&), double T, double J, double h, double kB);
 
-
 struct Properties {
     double *T;
     double *E;
@@ -35,12 +35,9 @@ struct Properties {
     double *M_abs;
 };
 
-struct Site {
-    int x;
-    int y;
-};
+typedef std::pair<int, int> Site;
 
-Site site(Ising::Lattice &lat, int x, int y);
+Site makeSite(Ising::Lattice &lat, int x, int y);
 
 /// @brief Effectue une seule itération de l'algorithme de Metropolis sur le réseau
 /// @param lat Réseau de spin
@@ -49,16 +46,27 @@ Site site(Ising::Lattice &lat, int x, int y);
 /// @param deltaM Variable où stocker la différence de magnetisation du mouvement Monte-Carlo
 void metropolisIteration(Ising::Lattice &lat, Parameters &options, double &deltaE, double &deltaM);
 
-/// @brief Effectue une seule itération de l'algorithme de Metropolis sur le réseau
-/// @param lat Réseau de spin
-/// @param options Paramètres de simulation
-void metropolisIteration(Ising::Lattice &lat, Parameters &options);
+/// @brief 
+/// @param lat 
+/// @param options 
+/// @param stack 
+/// @param rejectedSite 
+/// @param neighbor_x 
+/// @param neighbor_y 
+/// @param spin0 
+/// @param clusterSize 
+/// @param clusterSpin 
+/// @param clusterNeighbor 
+void tryNeighbor(Ising::Lattice &lat, Parameters &options, std::stack<Site> &stack, std::map<Site, int> &rejectedSite, int neighbor_x, int neighbor_y, int spin0, int &clusterSize, int &clusterSpin, int &clusterNeighbor);
 
 /// @brief Effectue une seule itération de l'algorithme de Wolff sur le réseau.
 /// Cet algorithme ne nécessite pas de l'itérer un grand nombre de fois, pour un réseau
 /// de taille 256x256, une vingtaine d'itérations suffit à atteindre un équilibre.
 /// Stack = pas de fonction récursive sujette à exploser le call stack (8Mb sur Fedora par défaut).
 /// Un stack offre autant d'appels que de RAM disponible.
+// ! Cet algorithme n'est pas pertinent pour h != 0, metropolis convergera très rapidement vers l'état d'équilibre de toute manière
+// ! Tenir compte de h implique de rajouter une seconde hashmap pour suivre les noeuds du cluster sans les retourner, le retournement du cluster
+// ! étant conditionné par ΔS = 2h * spin_cluster, une fois le cluster construit ... Complexifie inutilement l'algorithme quand Metropolis fonctionne pour ce cas.
 /// @param lat Réseau de spin
 /// @param options Paramètres de simulation 
 void wolffIteration(Ising::Lattice &lat, Parameters &options, double &deltaE, double &deltaM);

@@ -16,10 +16,10 @@ Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDurati
     return options;
 }
 
-Site site(Ising::Lattice &lat, int x, int y) {
+Site makeSite(Ising::Lattice &lat, int x, int y) {
     Site out = Site();
-    out.x = Ising::pcx(lat, x);
-    out.y = Ising::pcy(lat, y);
+    out.first = Ising::pcx(lat, x);
+    out.second = Ising::pcy(lat, y);
     return out;
 }
 
@@ -39,52 +39,64 @@ void metropolisIteration(Ising::Lattice &lat, Parameters &options, double &delta
     }
 }
 
+void tryNeighbor(Ising::Lattice &lat, Parameters &options, std::stack<Site> &stack, std::map<Site, int> &rejectedSite, int neighbor_x, int neighbor_y, int spin0, int &clusterSize, int &clusterSpin, int &clusterNeighbor) {
+    Site neighbor = makeSite(lat, neighbor_x, neighbor_y);
+    
+    if (spin0 != Ising::getSpin(lat, neighbor_x, neighbor_y)) {
+        rejectedSite[neighbor] = -spin0;
+        return;
+    }
+    
+    int isNeighborAccepted = (double)std::rand() / RAND_MAX < 1 - std::exp(- 2 / (options.kB * options.T));
+    
+    if (isNeighborAccepted) {
+        rejectedSite.erase(neighbor);
+        stack.push(neighbor);
 
-void wolffIteration(Ising::Lattice &lat, Parameters &options) {
+        clusterSize += 1;
+        clusterSpin += spin0;
+    }
+    else {
+        rejectedSite[neighbor] = spin0;
+    }
+}
+
+void wolffIteration(Ising::Lattice &lat, Parameters &options, double &deltaE, double &deltaM) {
     assert(options.h == 0);
 
+    // Spin initial
     int randomX = std::rand() % lat.sizeX;
     int randomY = std::rand() % lat.sizeY;
-
-    std::stack<Site> stack;
-    stack.push(site(lat, randomX, randomY));
-
-    Site visitedSite;
     int spin0 = Ising::getSpin(lat, randomX, randomY);
 
+    // Suivi de la construction du cluster
+    Site visitedSite;
+    std::stack<Site> stack;
+    stack.push(makeSite(lat, randomX, randomY));
+
+    // Suivi du cluster en temps réel (std::map offre une complexité O(log(n)) pour les opérations d'accès, suppression et permet de ne pas compter double)
+    std::map<Site, int> rejectedSite;
+    int clusterSize = 1;
     int clusterSpin = spin0;
     int clusterNeighbor = 0;
 
     while(!stack.empty()) {
         visitedSite = stack.top();
         stack.pop();
-        
-        if (spin0 == Ising::getSpin(lat, visitedSite.x + 1, visitedSite.y)) {
-            int isNeighborAccepted = (double)std::rand() / RAND_MAX < 1 - std::exp(- 2 / (options.kB * options.T));
-            if (isNeighborAccepted) {
-                stack.push(site(lat, visitedSite.x + 1, visitedSite.y));
-            }
-        }
-        if (spin0 == Ising::getSpin(lat, visitedSite.x - 1, visitedSite.y)) {
-            int isNeighborAccepted = (double)std::rand() / RAND_MAX < 1 - std::exp(- 2 / (options.kB * options.T));
-            if (isNeighborAccepted) {
-                stack.push(site(lat, visitedSite.x - 1, visitedSite.y));
-            }
-        }
-        if (spin0 == Ising::getSpin(lat, visitedSite.x, visitedSite.y + 1)) {
-            int isNeighborAccepted = (double)std::rand() / RAND_MAX < 1 - std::exp(- 2 / (options.kB * options.T));
-            if (isNeighborAccepted) {
-                stack.push(site(lat, visitedSite.x, visitedSite.y + 1));
-            }
-        }
-        if (spin0 == Ising::getSpin(lat, visitedSite.x, visitedSite.y - 1)) {
-            int isNeighborAccepted = (double)std::rand() / RAND_MAX < 1 - std::exp(- 2 / (options.kB * options.T));
-            if (isNeighborAccepted) {
-                stack.push(site(lat, visitedSite.x, visitedSite.y - 1));
-            }
-        }
-        Ising::flipSpin(lat, visitedSite.x, visitedSite.y);
+
+        tryNeighbor(lat, options, stack, rejectedSite, visitedSite.first + 1, visitedSite.second, spin0, clusterSize, clusterSpin, clusterNeighbor);
+        tryNeighbor(lat, options, stack, rejectedSite, visitedSite.first - 1, visitedSite.second, spin0, clusterSize, clusterSpin, clusterNeighbor);
+        tryNeighbor(lat, options, stack, rejectedSite, visitedSite.first, visitedSite.second + 1, spin0, clusterSize, clusterSpin, clusterNeighbor);
+        tryNeighbor(lat, options, stack, rejectedSite, visitedSite.first, visitedSite.second - 1, spin0, clusterSize, clusterSpin, clusterNeighbor);
+
+        Ising::flipSpin(lat, visitedSite.first, visitedSite.second);
     }
+
+    for (auto it = rejectedSite.begin(); it != rejectedSite.end(); it++) {
+        clusterNeighbor += it->second;
+    }
+    deltaE = 2 * options.J * spin0 * clusterNeighbor + 2 * options.h * clusterSpin;
+    deltaM = - 2 * clusterSpin / lat.sizeXY;
 }
 
 int atEquilibrium(Ising::Lattice &lat, Parameters &options, int oldEnergy, int newEnergy) {
