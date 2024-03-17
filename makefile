@@ -4,7 +4,7 @@ SRC_DIR := ./src
 
 SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
-TXT := $(shell find ./ -name '*.txt' -or -name '*.dat')
+TXT := $(shell find ./ -name '*.txt' -or -name '*.dat' -or -name '*.csv')
 
 PYTHON := -I/usr/include/python3.12 -lpython3.12
 PYTHON_MAG := -I/usr/include/python3.10
