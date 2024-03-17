@@ -24,9 +24,12 @@ struct Parameters
     double kB;
 };
 
-Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDuration, double relativeVariation, void (*setIterator)(Parameters&) = setMetropolis, double T = 0.5, double J = 1, double h = 0, double kB = 1);
+Parameters parameters(uint epochTreshold, uint jumpSize, double dataRecordDuration, double relativeVariation, void (*setIterator)(Parameters&), double T, double J, double h, double kB);
+
 void setMetropolis(Parameters &options);
-void setWolff(Parameters &options);
+
+// void setWolff(Parameters &options);
+
 
 struct Properties {
     double *T;
