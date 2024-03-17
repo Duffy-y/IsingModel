@@ -181,4 +181,9 @@ void array(std::string varName, double *data, uint length)
 void reshape(std::string varName, uint rows, uint columns) {
     PyRun_SimpleString((varName + "= np.reshape(" + varName + ",(" + std::to_string(rows) + "," + std::to_string(columns) + "))").c_str());
 }
+
+void savetxt(std::string varName, std::string filename, std::string delimiter) {
+    std::string command = std::format("np.savetxt('{}', {}, delimiter='{}')", filename, varName, delimiter);
+    PyRun_SimpleString(command.c_str());
+}
 }

@@ -89,4 +89,6 @@ void array(std::string varName, double *data, uint length);
 /// @param columns Nombre de colonnes
 void reshape(std::string varName, uint rows, uint columns);
 
+void savetxt(std::string varName, std::string filename, std::string delimiter);
+
 }

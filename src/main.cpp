@@ -7,13 +7,10 @@
 #include <fstream>
 #include <iostream>
 
-// TODO: Pythoncpp -> fonction pour faire des sous-figures facilement
-// TODO: thermalizeLattice -> affichage en temps réel du réseau
-// TODO: Une fonction qui plot les grandeurs moyennées.
-// TODO: PDF d'explication du Projet
-
 void showAlgorithm(Ising::Lattice &lat, MC::Parameters options) {
     auto spin = np::array(lat.spin, lat.sizeY, lat.sizeX);
+    double deltaE = 0;
+    double deltaM = 0;
     for (size_t i = 0; i < options.epochThreshold; i++)
     {
         if (i % options.jumpSize == 0) {
@@ -26,31 +23,41 @@ void showAlgorithm(Ising::Lattice &lat, MC::Parameters options) {
             plt::colorbar(); 
             plt::pause();
         }
-        options.mcIterator(lat, options);
+        options.mcIterator(lat, options, deltaE, deltaM);
     }
 }
 
 int main(int argc, char *argv[]) {
-    py::openPython();
-    plt::ion();
     std::srand(std::time(NULL));
+    py::openPython();
+    // plt::ion();
     
-    Ising::Lattice lat = Ising::lattice(25, 25);
+
+    // * Initialisation du réseau de spin
+    Ising::Lattice lat = Ising::lattice(15, 15);
     Ising::randomSpin(lat, 0.5);
 
-    MC::Parameters options = MC::Parameters();
-    options.J = 1;
-    options.h = 0;
-    options.jumpSize = 75000;
-    options.T = 0.1;     
-    options.kB = 1;
-    options.epochThreshold = 5000000;
-    options.relativeVariation = 0.0002; // Valeur raisonnable (~ 300 iterations Wolff pour un équilibre correct)
-    options.mcIterator = MC::metropolisIteration;
-    options.dataRecordDuration = 1;
+    // * Création des paramètres de simulation
+    MC::Parameters options = MC::parameters(5e6, 150000, 0.5, 0.0002, MC::metropolisIteration, 0.1, 1, 0, 1);
+    // MC::Parameters options = MC::parameters(500, 50, 0.5, 0.0002, MC::wolffIteration, 0.1, 1, 0, 1);
 
-    showAlgorithm(lat, options);
+    uint samplingPoints = 100;
+    MC::Properties props = MC::thermalizeLattice(lat, options, 0.1, 3, samplingPoints);
+    
+    auto E = np::array(props.E, samplingPoints);
+    auto E_sq = np::array(props.E_sq, samplingPoints);
+    auto M = np::array(props.M, samplingPoints);
+    auto M_sq = np::array(props.M_sq, samplingPoints);
+    auto M_abs = np::array(props.M_abs, samplingPoints);
+    auto T = np::array(props.T, samplingPoints);
+    
+    np::savetxt(E, "E.csv", ";");
+    np::savetxt(E_sq, "E_sq.csv", ";");
+    np::savetxt(M, "M.csv", ";");
+    np::savetxt(M_sq, "M_sq.csv", ";");
+    np::savetxt(M_abs, "M_abs.csv", ";");
+    np::savetxt(T, "T.csv", ";");
 
     py::closePython();
     return 0;
-}
+}   
