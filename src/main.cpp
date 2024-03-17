@@ -8,6 +8,8 @@
 #include <iostream>
 
 void showAlgorithm(Ising::Lattice &lat, MC::Parameters options) {
+    plt::ion();
+
     auto spin = np::array(lat.spin, lat.sizeY, lat.sizeX);
     double deltaE = 0;
     double deltaM = 0;
@@ -25,13 +27,13 @@ void showAlgorithm(Ising::Lattice &lat, MC::Parameters options) {
         }
         options.mcIterator(lat, options, deltaE, deltaM);
     }
+
+    plt::ioff();
 }
 
 int main(int argc, char *argv[]) {
     std::srand(std::time(NULL));
-    py::openPython();
-    // plt::ion();
-    
+    py::openPython();    
 
     // * Initialisation du réseau de spin
     Ising::Lattice lat = Ising::lattice(15, 15);
