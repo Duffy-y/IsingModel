@@ -34,8 +34,6 @@ void ioff();
 
 std::string axes(double left, double bottom, double width, double height);
 
-std::string Slider(std::string ax, std::string label, double valmin, double valmax, std::string varToUpdate);
-
 void plot(std::string x, std::string y, std::string label);
 
 void imshow(std::string X, std::string cmap);

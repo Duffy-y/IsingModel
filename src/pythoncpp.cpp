@@ -4,7 +4,6 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <format>
 
 namespace py {
 PyObject* openPython() {
@@ -68,19 +67,6 @@ void ioff() {
 std::string axes(double left, double bottom, double width, double height) {
     std::string varName = randomString(10);
     PyRun_SimpleString((varName + "= plt.axes([" + std::to_string(left) + "," + std::to_string(bottom) + "," + std::to_string(width) + ","+ std::to_string(height) + "])").c_str());
-    return varName;
-}
-
-std::string Slider(std::string ax, std::string label, double valmin, double valmax, std::string varToUpdate) {
-    std::string varName = randomString(10);
-    std::string updateFunctionName = randomString(10);
-   
-    std::string sliderCreation = std::format("{} = Slider({}, '{}', {}, {}, valinit={})", varName, ax, label, valmin, valmax, varToUpdate);
-
-    PyRun_SimpleString(("def " + updateFunctionName + "(value):\n\tglobal " + varToUpdate + "\n\t" + varToUpdate + "= value").c_str());
-    PyRun_SimpleString(sliderCreation.c_str());
-    PyRun_SimpleString((varName + ".on_changed(" + updateFunctionName + ")").c_str());
-
     return varName;
 }
 
@@ -183,7 +169,7 @@ void reshape(std::string varName, uint rows, uint columns) {
 }
 
 void savetxt(std::string varName, std::string filename, std::string delimiter) {
-    std::string command = std::format("np.savetxt('{}', {}, delimiter='{}')", filename, varName, delimiter);
+    std::string command = "np.savetxt('" + filename + "'," + varName + ", delimiter='" + delimiter + "')";
     PyRun_SimpleString(command.c_str());
 }
 }
