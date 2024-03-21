@@ -2,7 +2,6 @@
 
 #include "ising.hpp"
 #include <stack>
-#include <list>
 #include <map>
 #include <cmath>
 #include <iostream>
