@@ -51,7 +51,7 @@ void tryNeighbor(Ising::Lattice &lat, Parameters &options, std::stack<Site> &sta
         return;
     }
     
-    int isNeighborAccepted = (double)std::rand() / RAND_MAX < 1 - std::exp(- 2 / (options.kB * options.T));
+    int isNeighborAccepted = (double)std::rand() / RAND_MAX < 1 - std::exp(- 2 * options.J / (options.kB * options.T));
     if (isNeighborAccepted) {
         // std::cout << "[Neighbor] Adding to stack site : (" << neighbor_x << "," << neighbor_y << ")\n";        
         stack.push(neighbor);
