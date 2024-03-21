@@ -21,7 +21,7 @@ ax4 = fig.add_subplot(gs[1, 1])
 
 ax1.plot(T, E)
 ax2.plot(T, E_sq)
-ax3.plot(T, M)
+ax3.plot(T, M_abs)
 ax4.plot(T, M_sq)
 
 ax2.set_xlabel("Température [K]")
@@ -29,7 +29,7 @@ ax2.set_ylabel("$E^2$")
 ax1.set_ylabel("$E$")
 ax4.set_xlabel("Température [K]")
 ax4.set_ylabel("$M^2$")
-ax3.set_ylabel("$M$")
+ax3.set_ylabel("$|M|$")
 
 fig.suptitle("Propriétés de la grille en fonction de la température")
 

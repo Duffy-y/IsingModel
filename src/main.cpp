@@ -6,6 +6,8 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <unistd.h>  
+#include <map>
 
 void showAlgorithm(Ising::Lattice &lat, MC::Parameters options) {
     plt::ion();
@@ -19,7 +21,7 @@ void showAlgorithm(Ising::Lattice &lat, MC::Parameters options) {
             plt::clf();
             plt::xlabel("X");
             plt::ylabel("Y");
-            plt::title(std::to_string(i) + ", Xi = " + std::to_string(Ising::magnetization(lat)));
+            plt::title("T=" + std::to_string(options.T) = ", $\\chi$=" + std::to_string(Ising::magnetization(lat)));
             np::array(spin, lat.spin, lat.sizeY, lat.sizeX);
             plt::imshow(spin, CMAP_seismic);
             plt::colorbar(); 
@@ -36,15 +38,44 @@ int main(int argc, char *argv[]) {
     py::openPython();    
 
     // * Initialisation du réseau de spin
-    Ising::Lattice lat = Ising::lattice(15, 15);
+    Ising::Lattice lat = Ising::lattice(16, 16);
     Ising::randomSpin(lat, 0.5);
 
     // * Création des paramètres de simulation
-    MC::Parameters options = MC::parameters(5e6, 150000, 0.5, 0.0002, MC::metropolisIteration, 0.1, 1, 0, 1);
-    // MC::Parameters options = MC::parameters(500, 50, 0.5, 0.0002, MC::wolffIteration, 0.1, 1, 0, 1);
+    // MC::Parameters options = MC::parameters(5e6, 150000, 0.5, 0.0002, MC::metropolisIteration, 0.1, 1, 0, 1);
+    MC::Parameters options = MC::parameters(50, 5, 2, 0.0002, MC::wolffIteration, 0.01, 1, 0, 1);
+
+    // plt::ion();
+    // auto spin = np::array(lat.spin, lat.sizeY, lat.sizeX);
+    // double E = Ising::latticeEnergy(lat, options.J, options.h);
+    // double M = Ising::magnetization(lat);
+    // double deltaE = 0;
+    // double deltaM = 0;
+    // for (size_t i = 0; i < 50; i++)
+    // {
+    //     for (size_t j = 0; j < options.epochThreshold; j++)
+    //     {
+    //         if (j % options.jumpSize == 0) {
+    //             plt::clf();
+    //             plt::xlabel("X");
+    //             plt::ylabel("Y");
+    //             plt::title("T=" + std::to_string(options.T) + "; X=" + std::to_string(M));
+    //             np::array(spin, lat.spin, lat.sizeY, lat.sizeX);
+    //             plt::imshow(spin, CMAP_seismic);
+    //             plt::colorbar(); 
+    //             plt::pause();
+    //         }
+    //         options.mcIterator(lat, options, deltaE, deltaM);
+    //         E += deltaE;
+    //         M += deltaM;
+    //     }
+
+    //     options.T += 0.05 * i;
+    // }
+    // plt::ioff();
 
     uint samplingPoints = 100;
-    MC::Properties props = MC::thermalizeLattice(lat, options, 0.1, 3, samplingPoints);
+    MC::Properties props = MC::thermalizeLattice(lat, options, 0.1, 5, samplingPoints);
     
     auto E = np::array(props.E, samplingPoints);
     auto E_sq = np::array(props.E_sq, samplingPoints);

@@ -39,25 +39,22 @@ void metropolisIteration(Ising::Lattice &lat, Parameters &options, double &delta
     }
 }
 
-void tryNeighbor(Ising::Lattice &lat, Parameters &options, std::stack<Site> &stack, std::map<Site, int> &rejectedSite, int neighbor_x, int neighbor_y, int spin0, int &clusterSize, int &clusterSpin, int &clusterNeighbor) {
+void tryNeighbor(Ising::Lattice &lat, Parameters &options, std::stack<Site> &stack, std::map<Site, int> &cluster, int neighbor_x, int neighbor_y, int spin0) {
     Site neighbor = makeSite(lat, neighbor_x, neighbor_y);
     
     if (spin0 != Ising::getSpin(lat, neighbor_x, neighbor_y)) {
-        rejectedSite[neighbor] = -spin0;
+        // std::cout << "[Neighbor] Refusing neighbor (opposite spin): (" << neighbor_x << "," << neighbor_y << ")\n";
+        return;
+    }
+    if (cluster.count(neighbor) != 0) {
+        // std::cout << "[Neighbor] Refusing neighbor (in cluster): (" << neighbor_x << "," << neighbor_y << ")\n";
         return;
     }
     
     int isNeighborAccepted = (double)std::rand() / RAND_MAX < 1 - std::exp(- 2 / (options.kB * options.T));
-    
     if (isNeighborAccepted) {
-        rejectedSite.erase(neighbor);
+        // std::cout << "[Neighbor] Adding to stack site : (" << neighbor_x << "," << neighbor_y << ")\n";        
         stack.push(neighbor);
-
-        clusterSize += 1;
-        clusterSpin += spin0;
-    }
-    else {
-        rejectedSite[neighbor] = spin0;
     }
 }
 
@@ -72,31 +69,66 @@ void wolffIteration(Ising::Lattice &lat, Parameters &options, double &deltaE, do
     // Suivi de la construction du cluster
     Site visitedSite;
     std::stack<Site> stack;
+    std::map<Site, int> cluster;
     stack.push(makeSite(lat, randomX, randomY));
 
-    // Suivi du cluster en temps réel (std::map offre une complexité O(log(n)) pour les opérations d'accès, suppression et permet de ne pas compter double)
-    std::map<Site, int> rejectedSite;
-    int clusterSize = 1;
-    int clusterSpin = spin0;
+    // Suivi du cluster en temps réel
+    int clusterSize = 0;
     int clusterNeighbor = 0;
 
     while(!stack.empty()) {
         visitedSite = stack.top();
         stack.pop();
 
-        tryNeighbor(lat, options, stack, rejectedSite, visitedSite.first + 1, visitedSite.second, spin0, clusterSize, clusterSpin, clusterNeighbor);
-        tryNeighbor(lat, options, stack, rejectedSite, visitedSite.first - 1, visitedSite.second, spin0, clusterSize, clusterSpin, clusterNeighbor);
-        tryNeighbor(lat, options, stack, rejectedSite, visitedSite.first, visitedSite.second + 1, spin0, clusterSize, clusterSpin, clusterNeighbor);
-        tryNeighbor(lat, options, stack, rejectedSite, visitedSite.first, visitedSite.second - 1, spin0, clusterSize, clusterSpin, clusterNeighbor);
+        if (spin0 == Ising::getSpin(lat, visitedSite.first, visitedSite.second)) {
+            // std::cout << "[Wolff] Visited site = " << visitedSite.first << ";" << visitedSite.second << "; spin =" << Ising::getSpin(lat, visitedSite.first, visitedSite.second) << "\n";
+            
+            cluster[visitedSite] = 1;
+            clusterSize++;
 
-        Ising::flipSpin(lat, visitedSite.first, visitedSite.second);
+            tryNeighbor(lat, options, stack, cluster, visitedSite.first + 1, visitedSite.second, spin0);
+            tryNeighbor(lat, options, stack, cluster, visitedSite.first - 1, visitedSite.second, spin0);
+            tryNeighbor(lat, options, stack, cluster, visitedSite.first, visitedSite.second + 1, spin0);
+            tryNeighbor(lat, options, stack, cluster, visitedSite.first, visitedSite.second - 1, spin0);
+
+            Ising::flipSpin(lat, visitedSite.first, visitedSite.second);
+        }
     }
 
-    for (auto it = rejectedSite.begin(); it != rejectedSite.end(); it++) {
-        clusterNeighbor += it->second;
+    // Calcul des voisins du cluster
+    Site neighbor = makeSite(lat, 0, 0);
+    for (const auto& [key, val] : cluster) {
+        neighbor.first = Ising::pcx(lat, key.first + 1);
+        neighbor.second = Ising::pcy(lat, key.second);
+        if (cluster.count(neighbor) == 0) {
+            clusterNeighbor += Ising::getSpin(lat, key.first + 1, key.second);
+        }
+
+        neighbor.first = Ising::pcx(lat, key.first - 1);
+        neighbor.second = Ising::pcy(lat, key.second);
+        if (cluster.count(neighbor) == 0) {
+            clusterNeighbor += Ising::getSpin(lat, key.first - 1, key.second);
+        }
+
+        neighbor.first = Ising::pcx(lat, key.first);
+        neighbor.second = Ising::pcy(lat, key.second + 1);
+        if (cluster.count(neighbor) == 0) {
+            clusterNeighbor += Ising::getSpin(lat, key.first, key.second + 1);
+        }
+
+        neighbor.first = Ising::pcx(lat, key.first);
+        neighbor.second = Ising::pcy(lat, key.second - 1);
+        if (cluster.count(neighbor) == 0) {
+            clusterNeighbor += Ising::getSpin(lat, key.first, key.second - 1);
+        }
     }
+
+    // std::cout << "[Wolff] Cluster Neighbor = " << clusterNeighbor << "\n";
+    // std::cout << "[Wolff] Cluster Spin = " << clusterSize * spin0 << "\n";
+    // std::cout << "[Wolff] Cluster Size = " << clusterSize << "\n";
+
     deltaE = 2 * options.J * spin0 * clusterNeighbor;
-    deltaM = - 2 * clusterSpin;
+    deltaM = - 2 * clusterSize * spin0;
 }
 
 int atEquilibrium(Ising::Lattice &lat, Parameters &options, int oldEnergy, int newEnergy) {
@@ -135,6 +167,7 @@ uint reachEquilibrium(Ising::Lattice &lat, Parameters &options, double &energy, 
         options.mcIterator(lat, options, deltaE, deltaM);
         energy += deltaE;
         magnetization += deltaM;
+        // std::cout << "[MC] ΔE = " << deltaE << ", ΔM = " << deltaM << "\n";
 
         i++;
     }

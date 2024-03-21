@@ -57,7 +57,7 @@ void metropolisIteration(Ising::Lattice &lat, Parameters &options, double &delta
 /// @param clusterSize 
 /// @param clusterSpin 
 /// @param clusterNeighbor 
-void tryNeighbor(Ising::Lattice &lat, Parameters &options, std::stack<Site> &stack, std::map<Site, int> &rejectedSite, int neighbor_x, int neighbor_y, int spin0, int &clusterSize, int &clusterSpin, int &clusterNeighbor);
+void tryNeighbor(Ising::Lattice &lat, Parameters &options, std::stack<Site> &stack, std::map<Site, int> &cluster, int neighbor_x, int neighbor_y, int spin0);
 
 /// @brief Effectue une seule itération de l'algorithme de Wolff sur le réseau.
 /// Cet algorithme ne nécessite pas de l'itérer un grand nombre de fois, pour un réseau

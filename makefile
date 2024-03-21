@@ -10,7 +10,7 @@ PYTHON := -I/usr/include/python3.12 -lpython3.12
 PYTHON_MAG := -I/usr/include/python3.10
 
 CPP := g++
-CPPFLAGS := -Wall -std=c++23
+CPPFLAGS := -Wall -std=c++17
 
 $(BUILD_DIR)/$(TARGET): $(OBJS)
 	$(CPP) $(CPPFLAGS) $(PYTHON) $(OBJS) -o $@
