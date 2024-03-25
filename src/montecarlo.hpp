@@ -93,4 +93,6 @@ uint reachEquilibrium(Ising::Lattice &lat, Parameters &options, double &energy, 
 /// @param Tf Température de fin
 /// @param samplingPoints Nombre de points à calculer
 Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti, double Tf, uint samplingPoints);
+
+Properties magnetizeLattice(Ising::Lattice &lat, Parameters &options, double hi, double hf, uint samplingPoints);
 }

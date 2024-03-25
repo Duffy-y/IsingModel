@@ -221,14 +221,76 @@ Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti
             magnetization += deltaM;
         }
 
+        // Etape de normalisation
         props.T[i] = options.T;
-        props.E[i] /= meanSteps; // On normalise l'énergie par spin.
-        props.E_sq[i] /= meanSteps;
-        props.M[i] /= meanSteps;
-        props.M_sq[i] /= meanSteps;
-        props.M_abs[i] /= meanSteps;
+        props.E[i] /= meanSteps * lat.sizeXY;
+        props.E_sq[i] /= meanSteps * meanSteps * lat.sizeXY;
+        props.M[i] /= meanSteps * lat.sizeXY;
+        props.M_sq[i] /= meanSteps * meanSteps * lat.sizeXY;
+        props.M_abs[i] /= meanSteps * lat.sizeXY;
         
         options.T += dT;
+    }
+    return props;
+}
+
+Properties magnetizeLattice(Ising::Lattice &lat, Parameters &options, double hi, double hf, uint samplingPoints) {
+    assert(samplingPoints > 1);
+
+    Properties props = Properties(); 
+    props.E = new double[samplingPoints];
+    props.E_sq = new double[samplingPoints];
+    props.M = new double[samplingPoints];
+    props.M_sq = new double[samplingPoints];
+    props.M_abs = new double[samplingPoints];
+    props.T = new double[samplingPoints];
+    
+    options.h = std::min(hi, hf);
+    double dh = fabs(hf - hi) / (samplingPoints - 1);
+
+    int equilibriumSteps;
+    int meanSteps;
+
+    double energy = Ising::latticeEnergy(lat, options.J, options.h);
+    double magnetization = Ising::magnetization(lat);
+    double deltaE = 0;
+    double deltaM = 0;
+
+    for (uint i = 0; i < samplingPoints; i++)
+    {
+        std::cout << "[Thermalize] T = " << options.T << "\n";
+        equilibriumSteps = reachEquilibrium(lat, options, energy, magnetization);
+        meanSteps = options.dataRecordDuration * equilibriumSteps;
+        
+        props.E[i] = 0;
+        props.E_sq[i] = 0;
+        props.M[i] = 0;
+        props.M_sq[i] = 0;
+        props.M_abs[i] = 0;
+
+        for (int j = 0; j < meanSteps; j++)
+        {
+            props.E[i] += energy;
+            props.E_sq[i] += energy * energy;
+            props.M[i] += magnetization;
+            props.M_sq[i] += magnetization*magnetization;
+            props.M_abs[i] += fabs(magnetization);
+            
+            options.mcIterator(lat, options, deltaE, deltaM);
+            energy += deltaE;
+            magnetization += deltaM;
+        }
+
+        // Etape de normalisation
+        props.T[i] = options.h;
+        props.E[i] /= meanSteps * lat.sizeXY;
+        props.E_sq[i] /= meanSteps * meanSteps * lat.sizeXY;
+        props.M[i] /= meanSteps * lat.sizeXY;
+        props.M_sq[i] /= meanSteps * meanSteps * lat.sizeXY;
+        props.M_abs[i] /= meanSteps * lat.sizeXY;
+        
+        options.h += dh;
+        energy -= dh * magnetization; // L'énergie totale est modifié en changeant le champ magnétique
     }
     return props;
 }

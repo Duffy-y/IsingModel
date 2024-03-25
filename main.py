@@ -21,7 +21,7 @@ ax4 = fig.add_subplot(gs[1, 1])
 
 ax1.plot(T, E)
 ax2.plot(T, E_sq)
-ax3.plot(T, M_abs)
+ax3.plot(T, M)
 ax4.plot(T, M_sq)
 
 ax2.set_xlabel("Température [K]")
