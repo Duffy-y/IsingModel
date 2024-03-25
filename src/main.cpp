@@ -72,8 +72,8 @@ int main(int argc, char *argv[]) {
     py::openPython();    
 
     // * Initialisation du réseau de spin
-    Ising::Lattice lat = Ising::lattice(16, 16);
-    Ising::uniformSpin(lat, 1);
+    Ising::Lattice lat = Ising::lattice(16, 1);
+    Ising::randomSpin(lat, 0.5);
 
     // * Création des paramètres de simulation
     MC::Parameters options = MC::parameters(2.5e6, 150000, 0.5, 0.0002, MC::metropolisIteration, 0.1, 1, 0, 1);
@@ -83,13 +83,14 @@ int main(int argc, char *argv[]) {
     // showAlgorithm(lat, options, 0.1, 5, 20);
 
     // * Génération des données pour T qui varie
-    // MC::Properties propsTemp = MC::thermalizeLattice(lat, options, 0.1, 10, 500);
-    // saveProps(lat, options, propsTemp, 500, "temp_data_2D.csv");
+    uint samplingPoints = 80;
+    MC::Properties propsTemp = MC::thermalizeLattice(lat, options, 0.1, 4, samplingPoints);
+    saveProps(lat, options, propsTemp, samplingPoints, "temp_data.csv");
 
     // * Génération des données pour h qui varie
     options.T = 4;
-    MC::Properties propsMagn = MC::magnetizeLattice(lat, options, -5, 5, 200);
-    saveProps(lat, options, propsMagn, 200, "magn_data.csv");
+    MC::Properties propsMagn = MC::magnetizeLattice(lat, options, -5, 5, samplingPoints);
+    saveProps(lat, options, propsMagn, samplingPoints, "magn_data.csv");
 
     py::closePython();
     return 0;

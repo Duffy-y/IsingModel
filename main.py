@@ -2,15 +2,17 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import numpy as np
 
+plt.style.use("ggplot")
+
 # temp_data = np.loadtxt("res/temp_data_2D_T10.csv", delimiter=";")
 temp_data = np.loadtxt("res/temp_data.csv", delimiter=";")
 magn_data = np.loadtxt("res/magn_data.csv", delimiter=";")
 
-fig1 = plt.figure(1)
-fig2 = plt.figure(2)
+fig1 = plt.figure(1, figsize=(12, 8))
+fig2 = plt.figure(2, figsize=(12, 8))
 
-fig1.suptitle("Ising selon $T$")
-fig2.suptitle("Ising selon $h$")
+fig1.suptitle("Modèle d'Ising avec variation sur $T$")
+fig2.suptitle("Modèle d'Ising avec variation sur $h$")
 
 gs1 = GridSpec(3, 2, figure=fig1)
 gs2 = GridSpec(2, 2, figure=fig2)
