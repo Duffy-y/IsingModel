@@ -8,32 +8,6 @@
 #include <iostream>
 #include <unistd.h>  
 
-double* calorific_coefficient(Ising::Lattice &lat, MC::Properties props, uint samplingPoints, double kB) {
-    double *cv = new double[samplingPoints];
-
-    double norm = lat.sizeXY * lat.neighborCount;
-
-    for (uint i = 0; i < samplingPoints; i++)
-    {
-        cv[i] = props.E_sq[i] - norm * props.E[i]*props.E[i];
-        cv[i] /= (kB * props.T[i])*(kB * props.T[i]);
-    }
-    return cv;
-}
-
-double* susceptibility(Ising::Lattice &lat, MC::Properties props, uint samplingPoints, double kB) {
-    double *X = new double[samplingPoints];
-
-    double norm = lat.sizeXY * lat.neighborCount;
-
-    for (uint i = 0; i < samplingPoints; i++)
-    {
-        X[i] = props.M_sq[i] - norm * props.M[i]*props.M[i];
-        X[i] /= (kB * props.T[i]);
-    }
-    return X;
-}
-
 void saveProps(Ising::Lattice &lat, MC::Parameters options, MC::Properties props, uint samplingPoints, std::string fileName) {
     std::fstream file;
     file.open("res/" + fileName, std::ios::out);
