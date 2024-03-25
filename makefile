@@ -22,9 +22,8 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 .PHONY: compile magcompile
 
-clean:
+cleanbuild:
 	rm -r $(BUILD_DIR)
-	rm -f $(TXT)
 
 cleandata:
 	rm -f $(TXT)
