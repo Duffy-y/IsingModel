@@ -37,5 +37,4 @@
 
 .vscode
 .idea
-*.csv
 build/

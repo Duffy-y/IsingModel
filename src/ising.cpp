@@ -15,6 +15,11 @@ Lattice lattice(const uint sizeX, const uint sizeY) {
     lat.sizeX = sizeX;
     lat.sizeY = sizeY;
     lat.sizeXY = sizeX * sizeY;
+    lat.neighborCount = 2;
+
+    if (sizeY == 1) {
+        lat.neighborCount = 1;
+    }
 
     return lat;
 }

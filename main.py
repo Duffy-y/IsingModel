@@ -2,35 +2,66 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import numpy as np
 
-XY = 15*15
+# temp_data = np.loadtxt("res/temp_data_2D_T10.csv", delimiter=";")
+temp_data = np.loadtxt("res/temp_data.csv", delimiter=";")
+magn_data = np.loadtxt("res/magn_data.csv", delimiter=";")
 
-E = np.loadtxt("E.csv", delimiter=";")
-E_sq = np.loadtxt("E_sq.csv", delimiter=";")
-M = np.loadtxt("M.csv", delimiter=";")
-M_sq = np.loadtxt("M_sq.csv", delimiter=";")
-M_abs = np.loadtxt("M_abs.csv", delimiter=";")
-T = np.loadtxt("T.csv", delimiter=";")
+fig1 = plt.figure(1)
+fig2 = plt.figure(2)
 
-fig = plt.figure()
-gs = GridSpec(2, 2, figure=fig)
+fig1.suptitle("Ising selon $T$")
+fig2.suptitle("Ising selon $h$")
 
-ax1 = fig.add_subplot(gs[0, 0])
-ax2 = fig.add_subplot(gs[1, 0])
-ax3 = fig.add_subplot(gs[0, 1])
-ax4 = fig.add_subplot(gs[1, 1])
+gs1 = GridSpec(3, 2, figure=fig1)
+gs2 = GridSpec(2, 2, figure=fig2)
 
-ax1.plot(T, E)
-ax2.plot(T, E_sq)
-ax3.plot(T, M)
-ax4.plot(T, M_sq)
+# Affichage des données selon champ magnétique
+am1 = fig2.add_subplot(gs2[0, 0])
+am2 = fig2.add_subplot(gs2[0, 1])
+am3 = fig2.add_subplot(gs2[1, 0])
+am4 = fig2.add_subplot(gs2[1, 1])
 
-ax2.set_xlabel("Température [K]")
-ax2.set_ylabel("$E^2$")
-ax1.set_ylabel("$E$")
-ax4.set_xlabel("Température [K]")
-ax4.set_ylabel("$M^2$")
-ax3.set_ylabel("$|M|$")
+am1.plot(magn_data[:, 0], magn_data[:, 1])
+am1.set_ylabel("$<E>$ [UA]")
 
-fig.suptitle("Propriétés de la grille en fonction de la température")
+am2.plot(magn_data[:, 0], magn_data[:, 3])
+am2.set_ylabel("$<M>$ [%]")
+
+am3.plot(magn_data[:, 0], magn_data[:, 2])
+am3.set_ylabel("$<E^2>$")
+am3.set_xlabel("Champ magnétique $h$")
+
+am4.plot(magn_data[:, 0], magn_data[:, 4])
+am4.set_ylabel("$<M^2>$")
+am4.set_xlabel("Champ magnétique $h$")
+
+# Affichage des données selon température
+at1 = fig1.add_subplot(gs1[0, 0])
+at2 = fig1.add_subplot(gs1[0, 1])
+at3 = fig1.add_subplot(gs1[1, 0])
+at4 = fig1.add_subplot(gs1[1, 1])
+at5 = fig1.add_subplot(gs1[2, 0])
+at6 = fig1.add_subplot(gs1[2, 1])
+
+at1.plot(temp_data[:, 0], temp_data[:, 1])
+at1.set_ylabel("$<E>$ [UA]")
+
+at2.plot(temp_data[:, 0], temp_data[:, 3])
+at2.set_ylabel("$<M>$ [%]")
+
+at3.plot(temp_data[:, 0], temp_data[:, 2])
+at3.set_ylabel("$<E^2>$")
+
+at4.plot(temp_data[:, 0], temp_data[:, 4])
+at4.set_ylabel("$<M^2>$")
+
+at6.plot(temp_data[:, 0], temp_data[:, 7])
+at6.set_ylabel("$\\chi$")
+at6.set_xlabel("Température $T$")
+
+at5.plot(temp_data[:, 0], temp_data[:, 6])
+at5.set_ylabel("$C_V$")
+at5.set_xlabel("Température $T$")
+
 
 plt.show()

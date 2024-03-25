@@ -32,6 +32,7 @@ struct Properties {
     double *M;
     double *M_sq;
     double *M_abs;
+    double *mcSteps;
 };
 
 typedef std::pair<int, int> Site;

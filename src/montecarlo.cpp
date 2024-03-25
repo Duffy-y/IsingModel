@@ -184,6 +184,7 @@ Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti
     props.M_sq = new double[samplingPoints];
     props.M_abs = new double[samplingPoints];
     props.T = new double[samplingPoints];
+    props.mcSteps = new double[samplingPoints];
     
     options.T = std::min(Ti, Tf);
     double dT = fabs(Tf - Ti) / (samplingPoints - 1);
@@ -207,6 +208,8 @@ Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti
         props.M[i] = 0;
         props.M_sq[i] = 0;
         props.M_abs[i] = 0;
+        props.T[i] = options.T;
+        props.mcSteps[i] = meanSteps;
 
         for (int j = 0; j < meanSteps; j++)
         {
@@ -215,19 +218,11 @@ Properties thermalizeLattice(Ising::Lattice &lat, Parameters &options, double Ti
             props.M[i] += magnetization;
             props.M_sq[i] += magnetization*magnetization;
             props.M_abs[i] += fabs(magnetization);
-            
+
             options.mcIterator(lat, options, deltaE, deltaM);
             energy += deltaE;
             magnetization += deltaM;
         }
-
-        // Etape de normalisation
-        props.T[i] = options.T;
-        props.E[i] /= meanSteps * lat.sizeXY;
-        props.E_sq[i] /= meanSteps * meanSteps * lat.sizeXY;
-        props.M[i] /= meanSteps * lat.sizeXY;
-        props.M_sq[i] /= meanSteps * meanSteps * lat.sizeXY;
-        props.M_abs[i] /= meanSteps * lat.sizeXY;
         
         options.T += dT;
     }
@@ -244,6 +239,7 @@ Properties magnetizeLattice(Ising::Lattice &lat, Parameters &options, double hi,
     props.M_sq = new double[samplingPoints];
     props.M_abs = new double[samplingPoints];
     props.T = new double[samplingPoints];
+    props.mcSteps = new double[samplingPoints];
     
     options.h = std::min(hi, hf);
     double dh = fabs(hf - hi) / (samplingPoints - 1);
@@ -258,15 +254,17 @@ Properties magnetizeLattice(Ising::Lattice &lat, Parameters &options, double hi,
 
     for (uint i = 0; i < samplingPoints; i++)
     {
-        std::cout << "[Thermalize] T = " << options.T << "\n";
+        std::cout << "[Magnetize] h = " << options.h << "\n";
         equilibriumSteps = reachEquilibrium(lat, options, energy, magnetization);
         meanSteps = options.dataRecordDuration * equilibriumSteps;
         
+        props.T[i] = options.h;
         props.E[i] = 0;
         props.E_sq[i] = 0;
         props.M[i] = 0;
         props.M_sq[i] = 0;
         props.M_abs[i] = 0;
+        props.mcSteps[i] = meanSteps;
 
         for (int j = 0; j < meanSteps; j++)
         {
@@ -282,12 +280,6 @@ Properties magnetizeLattice(Ising::Lattice &lat, Parameters &options, double hi,
         }
 
         // Etape de normalisation
-        props.T[i] = options.h;
-        props.E[i] /= meanSteps * lat.sizeXY;
-        props.E_sq[i] /= meanSteps * meanSteps * lat.sizeXY;
-        props.M[i] /= meanSteps * lat.sizeXY;
-        props.M_sq[i] /= meanSteps * meanSteps * lat.sizeXY;
-        props.M_abs[i] /= meanSteps * lat.sizeXY;
         
         options.h += dh;
         energy -= dh * magnetization; // L'énergie totale est modifié en changeant le champ magnétique

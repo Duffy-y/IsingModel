@@ -13,6 +13,7 @@ struct Lattice {
     uint sizeX;
     uint sizeY;
     double sizeXY;
+    double neighborCount;
 };
 
 /// @brief Alloue un réseau de spin 2D de taille donné.
