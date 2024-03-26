@@ -72,19 +72,19 @@ int main(int argc, char *argv[]) {
     py::openPython();    
 
     // * Initialisation du réseau de spin
-    Ising::Lattice lat = Ising::lattice(16, 1);
+    Ising::Lattice lat = Ising::lattice(16, 16);
     Ising::randomSpin(lat, 0.5);
 
     // * Création des paramètres de simulation
     MC::Parameters options = MC::parameters(2.5e6, 150000, 0.5, 0.0002, MC::metropolisIteration, 0.1, 1, 0, 1);
-    // MC::Parameters options = MC::parameters(50, 5, 2, 0.0002, MC::wolffIteration, 0.01, 1, 0, 1);
+    // MC::Parameters options = MC::parameters(500, 100, 2, 0.0002, MC::wolffIteration, 0.01, 1, 0, 1);
 
     // * Démonstration de l'algorithme visuellement
     // showAlgorithm(lat, options, 0.1, 5, 20);
 
     // * Génération des données pour T qui varie
-    uint samplingPoints = 80;
-    MC::Properties propsTemp = MC::thermalizeLattice(lat, options, 0.1, 4, samplingPoints);
+    uint samplingPoints = 100;
+    MC::Properties propsTemp = MC::thermalizeLattice(lat, options, 0.1, 5, samplingPoints);
     saveProps(lat, options, propsTemp, samplingPoints, "temp_data.csv");
 
     // * Génération des données pour h qui varie
@@ -93,5 +93,25 @@ int main(int argc, char *argv[]) {
     saveProps(lat, options, propsMagn, samplingPoints, "magn_data.csv");
 
     py::closePython();
+
+    // ! Les free sont inutiles dans ce programme, les tableaux sont nécessaires et persistent tout le long
+    // ! de la durée de vie du programme. Les tableaux seront libérés automatiquement par le noyau.
+
+    free(lat.spin);
+
+    free(propsTemp.E);
+    free(propsTemp.E_sq);
+    free(propsTemp.M);
+    free(propsTemp.M_sq);
+    free(propsTemp.mcSteps);
+    free(propsTemp.T);
+
+    free(propsMagn.E);
+    free(propsMagn.E_sq);
+    free(propsMagn.M);
+    free(propsMagn.M_sq);
+    free(propsMagn.mcSteps);
+    free(propsMagn.T);
+
     return 0;
 }   

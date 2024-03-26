@@ -90,9 +90,14 @@ void wolffIteration(Ising::Lattice &lat, Parameters &options, double &deltaE, do
             tryNeighbor(lat, options, stack, cluster, visitedSite.first - 1, visitedSite.second, spin0);
             tryNeighbor(lat, options, stack, cluster, visitedSite.first, visitedSite.second + 1, spin0);
             tryNeighbor(lat, options, stack, cluster, visitedSite.first, visitedSite.second - 1, spin0);
-
-            Ising::flipSpin(lat, visitedSite.first, visitedSite.second);
         }
+    }
+
+    // On rejete les clusters  qui reviennent quasiment à une simple symétrie du système.
+    if (clusterSize > 0.8 * lat.sizeXY) {
+        deltaE = 0;
+        deltaM = 0;
+        return;
     }
 
     // Calcul des voisins du cluster
@@ -121,6 +126,8 @@ void wolffIteration(Ising::Lattice &lat, Parameters &options, double &deltaE, do
         if (cluster.count(neighbor) == 0) {
             clusterNeighbor += Ising::getSpin(lat, key.first, key.second - 1);
         }
+
+        Ising::flipSpin(lat, key.first, key.second);
     }
 
     // std::cout << "[Wolff] Cluster Neighbor = " << clusterNeighbor << "\n";
@@ -167,7 +174,6 @@ uint reachEquilibrium(Ising::Lattice &lat, Parameters &options, double &energy, 
         options.mcIterator(lat, options, deltaE, deltaM);
         energy += deltaE;
         magnetization += deltaM;
-        // std::cout << "[MC] ΔE = " << deltaE << ", ΔM = " << deltaM << "\n";
 
         i++;
     }
